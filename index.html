@@ -437,7 +437,37 @@ body{font-family:var(--font);background:var(--bg);color:var(--ink);min-height:10
 
 <script>
 // ═══════════════════════════════════════════
-// DATA
+// API CONFIGURATION — Paste your Apps Script URL below
+// ═══════════════════════════════════════════
+const API_URL = 'https://script.google.com/macros/s/AKfycbwlaNVX2jf3uYJTh2hsGyt0sr-NiCoZHueiWkCAjPgkXDu8yVxXvyEni3gTyKVVhIlK/exec';
+const APP_VERSION = 3.0;
+
+// ═══════════════════════════════════════════
+// API CALL HELPER
+// ═══════════════════════════════════════════
+async function apiCall(action, extraData = {}) {
+  const body = { action, version: APP_VERSION, ...extraData };
+  const proxies = [
+    u => u,
+    u => `https://corsproxy.io/?${encodeURIComponent(u)}`,
+    u => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
+  ];
+  for (const proxy of proxies) {
+    try {
+      const res = await fetch(proxy(API_URL), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      const json = await res.json();
+      return json;
+    } catch(e) { continue; }
+  }
+  return { ok: false, error: 'network_error', message: 'Cannot reach server. Check internet.' };
+}
+
+// ═══════════════════════════════════════════
+// SAMPLE DATA (used only if API_URL not set)
 // ═══════════════════════════════════════════
 const EMPLOYEES = {
   'EMP001': {
@@ -531,21 +561,59 @@ let _histFilter = 'recent';
 // ═══════════════════════════════════════════
 // LOGIN / LOGOUT
 // ═══════════════════════════════════════════
-function doLogin() {
+async function doLogin() {
   const code = document.getElementById('empCode').value.trim().toUpperCase();
-  const emp = EMPLOYEES[code];
-  if (!emp) {
-    const err = document.getElementById('loginErr');
-    err.style.display = 'block';
-    setTimeout(() => err.style.display = 'none', 3000);
-    return;
+  if (!code) return;
+
+  const btn = document.querySelector('.login-btn');
+  btn.textContent = 'Logging in…'; btn.disabled = true;
+
+  // If API URL is set — fetch from sheet
+  if (API_URL && API_URL !== 'https://script.google.com/macros/s/AKfycbwlaNVX2jf3uYJTh2hsGyt0sr-NiCoZHueiWkCAjPgkXDu8yVxXvyEni3gTyKVVhIlK/exec') {
+    const res = await apiCall('login', { empCode: code });
+    btn.textContent = 'Login →'; btn.disabled = false;
+
+    if (res.blocked) {
+      showLoginErr('⚠️ Outdated version. Please open latest link.');
+      return;
+    }
+    if (!res.ok || !res.employee) {
+      showLoginErr('❌ Invalid Employee Code. Please try again.');
+      return;
+    }
+
+    loggedEmp = res.employee;
+
+    // Also fetch history, board, notices in background
+    apiCall('getHistory', { empCode: code }).then(r => {
+      if (r.ok) HISTORY[code] = r.history;
+    });
+    apiCall('getBoard').then(r => {
+      if (r.ok) BOARD.splice(0, BOARD.length, ...r.board);
+    });
+    apiCall('getNotices').then(r => {
+      if (r.ok) NOTICES.splice(0, NOTICES.length, ...r.notices);
+    });
+
+  } else {
+    // Demo mode — use sample data
+    btn.textContent = 'Login →'; btn.disabled = false;
+    const emp = EMPLOYEES[code];
+    if (!emp) { showLoginErr('❌ Invalid Employee Code. Please try again.'); return; }
+    loggedEmp = {...emp};
   }
-  loggedEmp = {...emp};
-  document.getElementById('hdrName').textContent = emp.name.split(' ')[0];
+
+  document.getElementById('hdrName').textContent = loggedEmp.name.split(' ')[0];
   buildTabs();
   document.getElementById('loginScreen').classList.remove('on');
   document.getElementById('appScreen').classList.add('on');
   switchTab('loan');
+}
+
+function showLoginErr(msg) {
+  const err = document.getElementById('loginErr');
+  err.textContent = msg; err.style.display = 'block';
+  setTimeout(() => err.style.display = 'none', 4000);
 }
 
 function doLogout() {
@@ -932,9 +1000,11 @@ function eBranchRow(val) {
 function saveBranchDrop(val) {
   if(!val) return;
   loggedEmp.branch = val;
-  // update header tag
   const tags = document.querySelectorAll('.ptag');
   if(tags[0]) tags[0].textContent = val;
+  if (API_URL && API_URL !== 'https://script.google.com/macros/s/AKfycbwlaNVX2jf3uYJTh2hsGyt0sr-NiCoZHueiWkCAjPgkXDu8yVxXvyEni3gTyKVVhIlK/exec') {
+    apiCall('updateProfile', { empCode: loggedEmp.code, updates: { 'Branch': val } });
+  }
   showToast('✅ Branch updated!', 'ok');
 }
 
@@ -977,11 +1047,20 @@ function startEdit(key, cur, type='text') {
   setTimeout(() => document.getElementById('ei-'+key)?.focus(), 50);
 }
 
-function saveEdit(key) {
+async function saveEdit(key) {
   const inp = document.getElementById('ei-'+key);
   if(!inp) return;
   const val = inp.value.trim() || '';
   loggedEmp[key] = val;
+  // Map JS key to sheet column header
+  const fieldMap = {
+    designation:'Designation', mobile:'Mobile', whatsapp:'WhatsApp',
+    email:'Email', address:'Address', aadhar:'Aadhar Card No.', pan:'PAN Number'
+  };
+  const sheetField = fieldMap[key];
+  if (sheetField && API_URL && API_URL !== 'https://script.google.com/macros/s/AKfycbwlaNVX2jf3uYJTh2hsGyt0sr-NiCoZHueiWkCAjPgkXDu8yVxXvyEni3gTyKVVhIlK/exec') {
+    apiCall('updateProfile', { empCode: loggedEmp.code, updates: { [sheetField]: val } });
+  }
   showToast('✅ '+key+' updated!','ok');
   renderProfile(document.getElementById('pageContent'));
 }
