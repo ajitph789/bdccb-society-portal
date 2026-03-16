@@ -1,0 +1,1071 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>BDCCB — Employee Society Portal V3</title>
+
+<style>
+:root{
+  --navy:#0d1f3c;--navy2:#163258;--navy3:#1e4278;
+  --gold:#c9941a;--gold2:#e4a820;--gold3:#f5c842;--goldp:#fffbec;
+  --teal:#065f46;--teal2:#047857;--teal3:#10b981;--tealp:#ecfdf5;
+  --red:#b91c1c;--redbg:#fef2f2;--redfg:#dc2626;
+  --blue:#1d4ed8;--bluebg:#eff6ff;--bluefg:#3b82f6;
+  --purple:#6d28d9;--purplebg:#f5f3ff;
+  --bg:#f0f4f9;--card:#fff;--border:#dde4ef;
+  --ink:#0d1f3c;--muted:#5a6b84;--sub:#8899b0;
+  --sh:0 1px 4px rgba(13,31,60,.07);
+  --sh2:0 4px 18px rgba(13,31,60,.11);
+  --sh3:0 8px 32px rgba(13,31,60,.16);
+  --r:16px;--r2:12px;--r3:8px;
+  --font:-apple-system,BlinkMacSystemFont,'Segoe UI','Helvetica Neue',Arial,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{font-family:var(--font);background:var(--bg);color:var(--ink);min-height:100dvh;overflow-x:hidden}
+
+.screen{display:none!important}
+.screen.on{display:flex!important;flex-direction:column;min-height:100dvh}
+#loginScreen.on{display:flex!important;align-items:center;justify-content:center}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes progressFill{from{width:0}to{width:var(--w)}}
+@keyframes popIn{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:scale(1)}}
+
+/* ══ LOGIN ══ */
+#loginScreen{
+  background:linear-gradient(150deg,#060e1c 0%,#0d1f3c 45%,#0a2040 75%,#061228 100%);
+  padding:24px 20px;position:relative;overflow:hidden;
+}
+#loginScreen::before{
+  content:'';position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse at 15% 25%,rgba(201,148,26,.08) 0%,transparent 55%),
+    radial-gradient(ellipse at 85% 75%,rgba(6,95,70,.1) 0%,transparent 55%);
+  pointer-events:none;
+}
+.login-card{
+  background:#fff;border-radius:24px;width:100%;max-width:400px;
+  position:relative;z-index:1;
+  box-shadow:0 2px 4px rgba(0,0,0,.04),0 32px 80px rgba(0,0,0,.5);
+  animation:fadeUp .5s cubic-bezier(.22,.68,0,1.15);overflow:hidden;
+}
+.login-top{
+  background:linear-gradient(135deg,var(--navy),var(--navy2));
+  padding:32px 28px 26px;text-align:center;position:relative;overflow:hidden;
+}
+.login-top::after{
+  content:'';position:absolute;bottom:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,var(--gold),var(--gold3),var(--gold2));
+}
+.login-ico{
+  width:68px;height:68px;
+  background:linear-gradient(135deg,rgba(255,255,255,.15),rgba(255,255,255,.05));
+  border:2px solid rgba(255,255,255,.2);border-radius:20px;
+  font-size:32px;display:flex;align-items:center;justify-content:center;
+  margin:0 auto 16px;box-shadow:0 4px 20px rgba(0,0,0,.3);
+}
+.login-title{font-size:16px;font-weight:900;color:#fff;margin-bottom:5px}
+.login-sub{font-size:10px;color:rgba(255,255,255,.4);font-weight:600;text-transform:uppercase;letter-spacing:.1em}
+.login-body{padding:28px 28px 24px}
+.fld{margin-bottom:16px}
+.fld label{display:block;font-size:10.5px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:7px}
+.inp-wrap{position:relative}
+.inp-ico{position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:16px;pointer-events:none}
+.inp{
+  width:100%;border:2px solid var(--border);border-radius:12px;
+  padding:13px 14px 13px 44px;font-family:var(--font);font-size:14px;font-weight:600;
+  color:var(--ink);background:#fff;outline:none;transition:.15s;-webkit-appearance:none;
+}
+.inp::placeholder{font-size:13px;font-weight:400;color:#b0bec8}
+.inp:focus{border-color:var(--gold2);box-shadow:0 0 0 4px rgba(201,148,26,.1)}
+.login-btn{
+  width:100%;background:linear-gradient(135deg,var(--navy),var(--navy2));
+  color:#fff;border:none;border-radius:12px;padding:15px;
+  font-family:var(--font);font-size:14px;font-weight:800;
+  cursor:pointer;transition:.18s;margin-top:4px;
+  box-shadow:0 4px 14px rgba(13,31,60,.3);
+}
+.login-btn:active{transform:scale(.98)}
+.login-hint{background:#f8fafc;border:1.5px solid var(--border);border-radius:10px;padding:11px 14px;font-size:11.5px;color:var(--muted);display:flex;gap:9px;align-items:flex-start;margin-bottom:18px;line-height:1.55}
+.login-err{background:var(--redbg);border:1.5px solid #fecaca;border-radius:10px;padding:11px 14px;font-size:12px;color:var(--redfg);font-weight:700;text-align:center;margin-top:12px;display:none}
+.demo-codes{text-align:center;margin-top:14px;font-size:11px;color:var(--sub)}
+.demo-codes b{color:var(--gold2);font-family:monospace}
+
+/* ══ APP SHELL ══ */
+#appScreen{background:var(--bg)}
+.app-header{
+  background:linear-gradient(135deg,var(--navy) 0%,var(--navy2) 55%,var(--teal) 100%);
+  padding:11px 16px 10px;border-bottom:3px solid var(--gold3);
+  box-shadow:0 2px 20px rgba(0,0,0,.3);
+  position:sticky;top:0;z-index:200;flex-shrink:0;
+}
+.app-hinner{max-width:720px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.app-htitle{display:flex;align-items:center;gap:11px}
+.app-hico{width:36px;height:36px;background:linear-gradient(135deg,var(--gold),var(--gold3));border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 2px 10px rgba(0,0,0,.25);flex-shrink:0}
+.app-htext h1{font-size:14px;font-weight:800;color:#fff;line-height:1.2}
+.app-htext p{font-size:10px;color:rgba(255,255,255,.38);text-transform:uppercase;letter-spacing:.08em}
+.hbtn{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.8);border-radius:9px;padding:7px 12px;font-size:11px;font-weight:700;cursor:pointer;font-family:var(--font)}
+.hbtn.danger{background:rgba(220,38,38,.15);border-color:rgba(220,38,38,.25);color:#fca5a5}
+
+/* TAB BAR */
+.tab-bar{
+  background:linear-gradient(135deg,#0a1929,var(--navy));
+  border-bottom:1px solid rgba(201,148,26,.2);
+  position:sticky;top:59px;z-index:199;
+  overflow-x:auto;scrollbar-width:none;flex-shrink:0;
+}
+.tab-bar::-webkit-scrollbar{display:none}
+.tab-inner{display:flex;padding:0 8px;min-width:max-content}
+.tbtn{
+  display:flex;flex-direction:column;align-items:center;gap:3px;
+  padding:9px 14px 8px;border:none;background:none;
+  color:rgba(255,255,255,.4);font-family:var(--font);
+  font-size:11px;font-weight:700;cursor:pointer;
+  border-bottom:3px solid transparent;transition:.15s;
+  white-space:nowrap;text-transform:uppercase;letter-spacing:.04em;
+}
+.tbtn .tico{font-size:18px;transition:.15s}
+.tbtn.on{color:var(--gold3);border-bottom-color:var(--gold3)}
+.tbtn.on .tico{transform:scale(1.1)}
+
+.page-content{flex:1;overflow-y:auto;padding:16px;max-width:720px;margin:0 auto;width:100%;padding-bottom:40px}
+
+/* ══ CARDS ══ */
+.card{background:var(--card);border-radius:var(--r);box-shadow:var(--sh2);overflow:hidden;margin-bottom:14px}
+
+/* ══ MY LOAN ══ */
+.loan-hero{
+  background:linear-gradient(135deg,var(--navy) 0%,var(--navy2) 50%,var(--teal) 100%);
+  border-radius:var(--r);padding:22px 20px;margin-bottom:14px;
+  position:relative;overflow:hidden;box-shadow:0 4px 24px rgba(13,31,60,.25);
+  animation:fadeUp .4s ease;
+}
+.loan-hero::before{content:'';position:absolute;top:-40px;right:-40px;width:160px;height:160px;border-radius:50%;background:rgba(255,255,255,.04);pointer-events:none}
+.hero-label{font-size:11px;color:rgba(255,255,255,.5);font-weight:600;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px}
+.hero-name{font-size:20px;font-weight:900;color:#fff;margin-bottom:18px;line-height:1.2}
+.hero-bal-wrap{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:16px 18px;margin-bottom:16px}
+.hero-bal-label{font-size:10px;color:rgba(255,255,255,.45);font-weight:700;text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px}
+.hero-bal{font-size:30px;font-weight:900;color:#fff;letter-spacing:-.5px;font-family:monospace}
+.hero-bal span{font-size:16px;font-weight:600;color:rgba(255,255,255,.6);margin-right:2px}
+.prog-wrap{margin-top:12px}
+.prog-bar{height:7px;background:rgba(255,255,255,.12);border-radius:20px;overflow:hidden;margin-bottom:6px}
+.prog-fill{height:100%;border-radius:20px;background:linear-gradient(90deg,var(--teal3),var(--gold3));animation:progressFill .8s ease .2s both;--w:0%}
+.prog-labels{display:flex;justify-content:space-between;font-size:10px;color:rgba(255,255,255,.4);font-weight:600}
+.prog-pct{color:var(--gold3);font-weight:900}
+.hero-chips{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.hero-chip{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:10px 12px;text-align:center}
+.hero-chip-label{font-size:9px;color:rgba(255,255,255,.4);font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px}
+.hero-chip-val{font-size:15px;font-weight:800;color:#fff}
+.hero-chip-sub{font-size:9.5px;color:rgba(255,255,255,.35);margin-top:2px}
+
+.sec-title{font-size:12px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin:16px 0 8px;padding-left:2px}
+.info-list{padding:4px 0}
+.info-row{display:flex;justify-content:space-between;align-items:center;padding:11px 16px;border-bottom:1px solid var(--border)}
+.info-row:last-child{border-bottom:none}
+.info-key{font-size:12.5px;color:var(--muted);font-weight:600}
+.info-val{font-size:13.5px;font-weight:700;color:var(--ink);text-align:right}
+.info-val.mono{font-family:monospace}
+.badge{display:inline-block;padding:3px 9px;border-radius:6px;font-size:11px;font-weight:700}
+.badge.blue{background:var(--bluebg);color:var(--blue)}
+.badge.gold{background:var(--goldp);color:var(--gold)}
+.badge.teal{background:var(--tealp);color:var(--teal)}
+
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.stat-card{background:var(--card);border-radius:var(--r2);box-shadow:var(--sh);padding:14px;animation:popIn .3s ease both}
+.stat-ico{font-size:22px;margin-bottom:6px}
+.stat-label{font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}
+.stat-val{font-size:18px;font-weight:900;color:var(--ink)}
+.stat-val small{font-size:11px;font-weight:600;color:var(--muted)}
+.stat-sub{font-size:10.5px;color:var(--sub);margin-top:3px}
+
+.clearance-card{
+  background:linear-gradient(135deg,var(--teal),var(--teal2));
+  border-radius:var(--r);padding:18px 20px;margin-bottom:14px;text-align:center;
+}
+.clearance-title{font-size:11px;color:rgba(255,255,255,.6);font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+.clearance-date{font-size:22px;font-weight:900;color:#fff;margin-bottom:4px}
+.clearance-sub{font-size:11.5px;color:rgba(255,255,255,.5)}
+
+/* ══ HISTORY ══ */
+.hist-filters{background:var(--card);border-radius:var(--r);padding:14px;margin-bottom:12px;box-shadow:var(--sh)}
+.filter-row{display:flex;gap:8px;flex-wrap:wrap}
+.filter-chip{font-size:13px!important;
+  padding:8px 16px;border-radius:20px;border:1.5px solid var(--border);
+  background:#fff;font-family:var(--font);font-size:12px;font-weight:700;
+  color:var(--muted);cursor:pointer;transition:.15s;white-space:nowrap;
+}
+.filter-chip.on{background:var(--navy);border-color:var(--navy);color:#fff}
+.date-inp{
+  border:1.5px solid var(--border);border-radius:10px;padding:8px 12px;
+  font-family:var(--font);font-size:12px;color:var(--ink);
+  background:#fff;outline:none;
+}
+.date-inp:focus{border-color:var(--gold2)}
+
+.hist-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.action-btn{
+  padding:13px;border-radius:var(--r2);border:none;
+  font-family:var(--font);font-size:13px;font-weight:800;cursor:pointer;transition:.15s;
+}
+.action-btn.green{background:var(--tealp);color:var(--teal);border:1.5px solid rgba(6,95,70,.2)}
+.action-btn.gold{background:var(--goldp);color:var(--gold);border:1.5px solid rgba(201,148,26,.2)}
+.action-btn:active{transform:scale(.97)}
+
+.hist-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}
+.hs-card{background:var(--card);border-radius:var(--r2);padding:12px 8px;text-align:center;box-shadow:var(--sh)}
+.hs-label{font-size:10.5px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px}
+.hs-val{font-size:14px;font-weight:900;color:var(--ink)}
+.hs-val.green{color:var(--teal2)}
+.hs-val.red{color:var(--redfg)}
+
+.hist-card{background:var(--card);border-radius:var(--r2);box-shadow:var(--sh);margin-bottom:10px;overflow:hidden;animation:fadeUp .3s ease}
+.hist-card-top{display:flex;justify-content:space-between;align-items:flex-start;padding:14px 16px;border-bottom:1px solid var(--border)}
+.hist-month{font-size:16px;font-weight:900;color:var(--ink)}
+.hist-prev{font-size:12px;color:var(--sub);margin-top:3px}
+.hist-bal-wrap{text-align:right}
+.hist-bal{font-size:16px;font-weight:900;color:var(--ink);font-family:monospace}
+.hist-change{font-size:11px;font-weight:700;margin-top:3px}
+.hist-change.down{color:var(--teal2)}
+
+.hist-card-bot{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--border)}
+.hist-chip{padding:10px 6px;text-align:center;border-right:1px solid var(--border)}
+.hist-chip:last-child{border-right:none}
+.hist-chip-label{font-size:10px;color:var(--sub);font-weight:700;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px}
+.hist-chip-val{font-size:13px;font-weight:800;color:var(--ink)}
+.hist-chip-val.p{color:var(--teal2)}
+.hist-chip-val.i{color:var(--gold)}
+.hist-chip-val.s{color:var(--blue)}
+
+.empty{text-align:center;padding:48px 20px}
+.empty-ico{font-size:48px;margin-bottom:12px}
+.empty-txt{font-size:14px;color:var(--muted);font-weight:600}
+
+/* ══ PROFILE ══ */
+/* ══ PROFILE ══ */
+.prof-layout{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start}
+@media(max-width:600px){.prof-layout{grid-template-columns:1fr}}
+
+/* Left panel — view only */
+.prof-left{display:flex;flex-direction:column;gap:0}
+.prof-id-card{
+  background:linear-gradient(145deg,var(--navy),var(--navy2));
+  border-radius:var(--r);padding:20px;margin-bottom:12px;
+  box-shadow:0 4px 24px rgba(13,31,60,.25);animation:fadeUp .4s ease;
+  position:relative;overflow:hidden;
+}
+.prof-id-card::before{
+  content:'';position:absolute;top:-30px;right:-30px;width:120px;height:120px;
+  border-radius:50%;background:rgba(201,148,26,.08);pointer-events:none;
+}
+.prof-avatar{
+  width:58px;height:58px;border-radius:14px;
+  background:linear-gradient(135deg,var(--gold),var(--gold3));
+  display:flex;align-items:center;justify-content:center;
+  font-size:24px;font-weight:900;color:var(--navy);
+  box-shadow:0 4px 14px rgba(0,0,0,.25);margin-bottom:12px;
+}
+.prof-name{font-size:17px;font-weight:900;color:#fff;line-height:1.3;margin-bottom:2px}
+.prof-code{font-size:10.5px;color:rgba(255,255,255,.4);font-family:monospace;font-weight:600;margin-bottom:10px}
+.prof-tags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:14px}
+.ptag{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.12);border-radius:6px;padding:3px 8px;font-size:9.5px;font-weight:700;color:rgba(255,255,255,.65)}
+.service-badge{
+  background:linear-gradient(135deg,var(--teal),var(--teal2));
+  border-radius:10px;padding:10px 14px;display:flex;align-items:center;gap:8px;
+}
+.sb-ico{font-size:18px}
+.sb-text{font-size:11px;font-weight:800;color:#fff}
+.sb-sub{font-size:9.5px;color:rgba(255,255,255,.55);margin-top:1px}
+
+/* Info rows in left panel */
+.info-panel{background:var(--card);border-radius:var(--r);overflow:hidden;box-shadow:var(--sh);margin-bottom:12px}
+.info-panel-title{
+  background:linear-gradient(135deg,var(--navy),var(--navy2));
+  padding:10px 14px;font-size:10px;font-weight:800;
+  color:rgba(255,255,255,.6);text-transform:uppercase;letter-spacing:.07em;
+  display:flex;align-items:center;gap:6px;
+}
+.ip-row{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-bottom:1px solid var(--border)}
+.ip-row:last-child{border-bottom:none}
+.ip-key{font-size:11px;color:var(--muted);font-weight:500}
+.ip-val{font-size:12px;font-weight:700;color:var(--ink);text-align:right;font-family:monospace}
+.ip-badge{display:inline-block;padding:2px 8px;border-radius:5px;font-size:10.5px;font-weight:700}
+.ip-badge.blue{background:var(--bluebg);color:var(--blue)}
+.ip-badge.gold{background:var(--goldp);color:var(--gold)}
+.ip-badge.teal{background:var(--tealp);color:var(--teal)}
+
+/* Right panel — editable form */
+.prof-right{background:var(--card);border-radius:var(--r);box-shadow:var(--sh2);overflow:hidden;animation:fadeUp .4s ease .1s both}
+.prof-form-header{
+  background:linear-gradient(135deg,var(--gold),var(--gold2));
+  padding:14px 18px;display:flex;align-items:center;gap:10px;
+}
+.pfh-ico{font-size:20px}
+.pfh-title{font-size:13px;font-weight:800;color:var(--navy)}
+.pfh-sub{font-size:10px;color:rgba(13,31,60,.55);margin-top:1px}
+.prof-form-body{padding:16px}
+.pf-group{margin-bottom:14px}
+.pf-group-label{
+  font-size:9.5px;font-weight:800;color:var(--muted);
+  text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;
+  display:flex;align-items:center;gap:5px;
+}
+.pf-editable-tag{
+  background:var(--tealp);color:var(--teal2);
+  border-radius:4px;padding:1px 6px;font-size:8px;font-weight:800;
+}
+.pf-locked-tag{
+  background:var(--bluebg);color:var(--blue);
+  border-radius:4px;padding:1px 6px;font-size:8px;font-weight:700;
+}
+.pf-field-row{
+  background:#f8fafc;border:1.5px solid var(--border);border-radius:10px;
+  padding:10px 12px;display:flex;align-items:center;justify-content:space-between;
+  gap:8px;transition:.15s;
+}
+.pf-field-row.editing{border-color:var(--gold2);background:var(--goldp)}
+.pf-field-val{font-size:13px;font-weight:600;color:var(--ink);flex:1}
+.pf-field-val.empty{color:var(--sub);font-style:italic;font-size:12px}
+.pf-edit-btn{
+  background:#fff;border:1.5px solid rgba(201,148,26,.3);
+  border-radius:8px;padding:5px 11px;
+  font-family:var(--font);font-size:10.5px;font-weight:800;
+  color:var(--gold);cursor:pointer;flex-shrink:0;transition:.15s;
+  white-space:nowrap;
+}
+.pf-edit-btn:hover{background:var(--goldp);border-color:var(--gold)}
+.pf-edit-inp{
+  width:100%;border:1.5px solid var(--gold2);border-radius:8px;
+  padding:8px 10px;font-family:var(--font);font-size:13px;
+  color:var(--ink);outline:none;background:var(--goldp);margin-top:6px;
+}
+.pf-save-row{display:flex;gap:6px;margin-top:7px}
+.pf-save-btn{
+  background:var(--teal);color:#fff;border:none;border-radius:8px;
+  padding:7px 14px;font-family:var(--font);font-size:11px;font-weight:800;cursor:pointer;
+}
+.branch-sel{
+  flex:1;border:1.5px solid rgba(201,148,26,.35);border-radius:10px;
+  padding:10px 12px;font-family:var(--font);font-size:13px;font-weight:600;
+  color:var(--ink);background:var(--goldp);outline:none;cursor:pointer;
+  width:100%;
+}
+.branch-sel:focus{border-color:var(--gold2);box-shadow:0 0 0 3px rgba(201,148,26,.1)}
+.pf-cancel-btn{
+  background:#fff;color:var(--muted);border:1.5px solid var(--border);
+  border-radius:8px;padding:7px 12px;font-family:var(--font);font-size:11px;font-weight:700;cursor:pointer;
+}
+.pf-divider{height:1px;background:var(--border);margin:14px 0}
+.pf-section-title{font-size:10px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.pf-section-title::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* ══ BOARD ══ */
+/* uses inline styles in table */
+
+/* ══ NOTICES ══ */
+.notice-card{background:var(--card);border-radius:var(--r2);padding:16px;margin-bottom:10px;box-shadow:var(--sh);border-left:4px solid var(--border);animation:fadeUp .3s ease}
+.notice-card.pinned{border-left-color:var(--gold2);background:var(--goldp)}
+.notice-title{font-size:13.5px;font-weight:800;color:var(--ink);margin-bottom:7px}
+.notice-body{font-size:12px;color:var(--muted);line-height:1.65;margin-bottom:10px}
+.notice-date{font-size:10.5px;color:var(--sub);font-weight:600}
+
+/* ══ TOAST ══ */
+.toast{
+  position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);
+  background:var(--navy);color:#fff;border-radius:12px;padding:11px 20px;
+  font-size:13px;font-weight:700;opacity:0;transition:.25s;z-index:999;
+  white-space:nowrap;pointer-events:none;box-shadow:var(--sh3);
+}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.ok{background:var(--teal)}
+.toast.err{background:var(--red)}
+
+
+</style>
+</head>
+<body>
+
+<!-- ═══════ LOGIN SCREEN ═══════ -->
+<div class="screen" id="loginScreen">
+  <div class="login-card">
+    <div class="login-top">
+      <div class="login-ico">🏦</div>
+      <div class="login-title">BDCCB Employee Society</div>
+      <div class="login-sub">Bagalkot DCC Bank Ltd.</div>
+    </div>
+    <div class="login-body">
+      <div class="login-hint">ℹ️ Enter your Employee Code to login. Contact admin if you don't have it.</div>
+      <div class="fld">
+        <label>Employee Code</label>
+        <div class="inp-wrap">
+          <span class="inp-ico">🪪</span>
+          <input class="inp" id="empCode" type="text" placeholder="e.g. EMP001" autocomplete="off" autocapitalize="characters"
+            onkeydown="if(event.key==='Enter')doLogin()">
+        </div>
+      </div>
+      <button class="login-btn" onclick="doLogin()">Login →</button>
+      <div class="login-err" id="loginErr">❌ Invalid Employee Code. Please try again.</div>
+      <div class="demo-codes">Demo codes: <b>EMP001</b> · <b>EMP002</b> · <b>EMP003</b></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ APP SCREEN ═══════ -->
+<div class="screen" id="appScreen">
+  <div class="app-header">
+    <div class="app-hinner">
+      <div class="app-htitle">
+        <div class="app-hico">🏦</div>
+        <div class="app-htext">
+          <h1 id="hdrName">—</h1>
+          <p>BDCCB Employee Society</p>
+        </div>
+      </div>
+      <button class="hbtn danger" onclick="doLogout()">Logout</button>
+    </div>
+  </div>
+  <div class="tab-bar">
+    <div class="tab-inner" id="tabInner"></div>
+  </div>
+  <div class="page-content" id="pageContent"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════════
+const EMPLOYEES = {
+  'EMP001': {
+    code:'EMP001', name:'Ramesh Kumar', custId:'CUST1001',
+    branch:'Bagalkot HO', designation:'Senior Accountant',
+    doj:'01-Apr-2010', dob:'15-Jun-1985',
+    mobile:'9876543210', whatsapp:'9876543210', email:'ramesh@email.com',
+    loanNo:'LN10001', origAmt:500000, emi:12500, rate:10.5,
+    loanStart:'01-Apr-2022', shareAmt:25000, shareDed:400,
+  },
+  'EMP002': {
+    code:'EMP002', name:'Sunita Patil', custId:'CUST1002',
+    branch:'Jamkhandi', designation:'Loan Officer',
+    doj:'15-Jun-2012', dob:'22-Mar-1988',
+    mobile:'9845612300', whatsapp:'9845612300', email:'sunita@email.com',
+    loanNo:'LN10002', origAmt:800000, emi:18000, rate:9.5,
+    loanStart:'01-Jan-2021', shareAmt:15000, shareDed:400,
+  },
+  'EMP003': {
+    code:'EMP003', name:'Vijay Desai', custId:'CUST1003',
+    branch:'Mudhol', designation:'Clerk',
+    doj:'01-Mar-2015', dob:'10-Dec-1990',
+    mobile:'9731234560', whatsapp:'', email:'',
+    loanNo:'LN10003', origAmt:300000, emi:8500, rate:11.0,
+    loanStart:'01-Jul-2023', shareAmt:10000, shareDed:400,
+  },
+};
+
+// All values entered as-is — no auto-calculation
+const HISTORY = {
+  'EMP001': [
+    {month:'Apr-25',prevBal:500000,balance:492275,totalEmi:12500,shareDed:400,principal:7725,interest:4375},
+    {month:'May-25',prevBal:492275,balance:484482,totalEmi:12500,shareDed:400,principal:7793,interest:4307},
+    {month:'Jun-25',prevBal:484482,balance:476621,totalEmi:12500,shareDed:400,principal:7861,interest:4239},
+    {month:'Jul-25',prevBal:476621,balance:468691,totalEmi:12500,shareDed:400,principal:7930,interest:4170},
+    {month:'Aug-25',prevBal:468691,balance:460692,totalEmi:12500,shareDed:400,principal:7999,interest:4101},
+    {month:'Sep-25',prevBal:460692,balance:452623,totalEmi:12500,shareDed:400,principal:8069,interest:4031},
+    {month:'Oct-25',prevBal:452623,balance:444483,totalEmi:12500,shareDed:400,principal:8140,interest:3960},
+    {month:'Nov-25',prevBal:444483,balance:436272,totalEmi:12500,shareDed:400,principal:8211,interest:3889},
+    {month:'Dec-25',prevBal:436272,balance:427989,totalEmi:12500,shareDed:400,principal:8283,interest:3817},
+    {month:'Jan-26',prevBal:427989,balance:419634,totalEmi:12500,shareDed:400,principal:8355,interest:3745},
+    {month:'Feb-26',prevBal:419634,balance:411206,totalEmi:12500,shareDed:400,principal:8428,interest:3672},
+    {month:'Mar-26',prevBal:411206,balance:402704,totalEmi:12500,shareDed:400,principal:8502,interest:3598},
+  ],
+  'EMP002': [
+    {month:'Oct-25',prevBal:800000,balance:788733,totalEmi:18000,shareDed:400,principal:11267,interest:6333},
+    {month:'Nov-25',prevBal:788733,balance:777377,totalEmi:18000,shareDed:400,principal:11356,interest:6244},
+    {month:'Dec-25',prevBal:777377,balance:765931,totalEmi:18000,shareDed:400,principal:11446,interest:6154},
+    {month:'Jan-26',prevBal:765931,balance:754395,totalEmi:18000,shareDed:400,principal:11536,interest:6064},
+    {month:'Feb-26',prevBal:754395,balance:742767,totalEmi:18000,shareDed:400,principal:11628,interest:5972},
+    {month:'Mar-26',prevBal:742767,balance:731047,totalEmi:18000,shareDed:400,principal:11720,interest:5880},
+  ],
+  'EMP003': [
+    {month:'Nov-25',prevBal:300000,balance:294650,totalEmi:8500,shareDed:400,principal:5350,interest:2750},
+    {month:'Dec-25',prevBal:294650,balance:289251,totalEmi:8500,shareDed:400,principal:5399,interest:2701},
+    {month:'Jan-26',prevBal:289251,balance:283802,totalEmi:8500,shareDed:400,principal:5449,interest:2651},
+    {month:'Feb-26',prevBal:283802,balance:278304,totalEmi:8500,shareDed:400,principal:5498,interest:2602},
+    {month:'Mar-26',prevBal:278304,balance:272755,totalEmi:8500,shareDed:400,principal:5549,interest:2551},
+  ],
+};
+
+const BOARD = [
+  {name:'Shri. Basavaraj Patil',  pos:'President',      phone:'9876500001', ico:'B'},
+  {name:'Shri. Mallikarjun Bagi', pos:'Vice President', phone:'9876500002', ico:'M'},
+  {name:'Smt. Laxmi Gudadinni',   pos:'Secretary',      phone:'9876500003', ico:'L'},
+  {name:'Shri. Raju Hugar',       pos:'Treasurer',      phone:'9876500004', ico:'R'},
+];
+
+const NOTICES = [
+  {title:'Monthly EMI Reminder',   body:'Dear members, please ensure your EMI is deducted before 5th of every month. Contact office for any issues.',date:'01-Mar-2026',pinned:true},
+  {title:'Annual General Meeting', body:'AGM scheduled on 25-Mar-2026 at 11:00 AM at Head Office. All members are requested to attend.',date:'10-Mar-2026',pinned:true},
+  {title:'New Loan Applications',  body:'Members can apply for fresh loans from 01-Apr-2026. Submit application to society office with required documents.',date:'05-Mar-2026',pinned:false},
+  {title:'Share Amount Update',    body:'Share amount has been updated for FY 2025-26. Please verify your share amount in My Profile tab.',date:'01-Feb-2026',pinned:false},
+];
+
+const TABS = [
+  {id:'loan',    ico:'💰', lbl:'My Loan'},
+  {id:'history', ico:'📈', lbl:'History'},
+  {id:'profile', ico:'👤', lbl:'My Profile'},
+  {id:'board',   ico:'🏛️', lbl:'Board'},
+  {id:'notices', ico:'📢', lbl:'Notices'},
+];
+
+// ═══════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════
+let loggedEmp = null;
+let curTab = '';
+let _histFilter = 'recent';
+
+// ═══════════════════════════════════════════
+// LOGIN / LOGOUT
+// ═══════════════════════════════════════════
+function doLogin() {
+  const code = document.getElementById('empCode').value.trim().toUpperCase();
+  const emp = EMPLOYEES[code];
+  if (!emp) {
+    const err = document.getElementById('loginErr');
+    err.style.display = 'block';
+    setTimeout(() => err.style.display = 'none', 3000);
+    return;
+  }
+  loggedEmp = {...emp};
+  document.getElementById('hdrName').textContent = emp.name.split(' ')[0];
+  buildTabs();
+  document.getElementById('loginScreen').classList.remove('on');
+  document.getElementById('appScreen').classList.add('on');
+  switchTab('loan');
+}
+
+function doLogout() {
+  loggedEmp = null; curTab = '';
+  document.getElementById('appScreen').classList.remove('on');
+  document.getElementById('loginScreen').classList.add('on');
+  document.getElementById('empCode').value = '';
+}
+
+window.addEventListener('load', () => {
+  document.getElementById('loginScreen').classList.add('on');
+});
+
+// ═══════════════════════════════════════════
+// TABS
+// ═══════════════════════════════════════════
+function buildTabs() {
+  document.getElementById('tabInner').innerHTML = TABS.map(t =>
+    `<button class="tbtn" id="tb-${t.id}" onclick="switchTab('${t.id}')">
+      <span class="tico">${t.ico}</span>${t.lbl}
+    </button>`
+  ).join('');
+}
+
+function switchTab(id) {
+  if (curTab === id) return;
+  curTab = id;
+  document.querySelectorAll('.tbtn').forEach(b => b.classList.remove('on'));
+  document.getElementById('tb-'+id)?.classList.add('on');
+  const el = document.getElementById('pageContent');
+  el.innerHTML = '';
+  el.scrollTop = 0;
+  _histFilter = 'recent';
+  ({loan:pgLoan, history:pgHistory, profile:pgProfile, board:pgBoard, notices:pgNotices})[id]?.(el);
+  applyFontSize();
+}
+
+// ═══════════════════════════════════════════
+// MY LOAN TAB
+// ═══════════════════════════════════════════
+function pgLoan(el) {
+  const e = loggedEmp;
+  const hist = sortedHist(e.code);
+  const curBal = hist.length ? hist[0].balance : e.origAmt;
+  const paid = e.origAmt - curBal;
+  const pct = Math.min(100, Math.round(paid / e.origAmt * 100));
+  const monthsRemain = curBal > 0 ? Math.ceil(curBal / (e.emi - e.shareDed)) : 0;
+  const clearDate = new Date();
+  clearDate.setMonth(clearDate.getMonth() + monthsRemain);
+  const clearStr = clearDate.toLocaleDateString('en-IN',{month:'long',year:'numeric'});
+  const totalIntPaid = hist.reduce((s,h)=>s+h.interest,0);
+
+  el.innerHTML = `
+    <div class="loan-hero">
+      <div class="hero-label">Current Loan Balance</div>
+      <div class="hero-name">${e.name}</div>
+      <div class="hero-bal-wrap">
+        <div class="hero-bal-label">Outstanding Balance</div>
+        <div class="hero-bal"><span>₹</span>${fmt(curBal)}</div>
+        <div class="prog-wrap">
+          <div class="prog-bar"><div class="prog-fill" style="--w:${pct}%"></div></div>
+          <div class="prog-labels">
+            <span>₹${fmt(paid)} repaid</span>
+            <span class="prog-pct">${pct}% done</span>
+            <span>₹${fmt(e.origAmt)} total</span>
+          </div>
+        </div>
+      </div>
+      <div class="hero-chips">
+        <div class="hero-chip">
+          <div class="hero-chip-label">Monthly EMI</div>
+          <div class="hero-chip-val">₹${fmt(e.emi)}</div>
+          <div class="hero-chip-sub">Total deduction</div>
+        </div>
+        <div class="hero-chip">
+          <div class="hero-chip-label">Months Left</div>
+          <div class="hero-chip-val">${monthsRemain}</div>
+          <div class="hero-chip-sub">Est. clearance</div>
+        </div>
+        <div class="hero-chip">
+          <div class="hero-chip-label">Interest Paid</div>
+          <div class="hero-chip-val">₹${fmt(totalIntPaid)}</div>
+          <div class="hero-chip-sub">Since ${e.loanStart}</div>
+        </div>
+        <div class="hero-chip">
+          <div class="hero-chip-label">Share / Month</div>
+          <div class="hero-chip-val">₹${fmt(e.shareDed)}</div>
+          <div class="hero-chip-sub">Monthly deduction</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="clearance-card">
+      <div class="clearance-title">🎯 Estimated Loan Clearance</div>
+      <div class="clearance-date">${clearStr}</div>
+      <div class="clearance-sub">${monthsRemain} months remaining at ₹${fmt(e.emi)}/month</div>
+    </div>
+
+    <div class="sec-title">📋 Loan Details</div>
+    <div class="card">
+      <div class="info-list">
+        <div class="info-row"><span class="info-key">🏦 Loan Number</span><span class="info-val mono">${e.loanNo}</span></div>
+        <div class="info-row"><span class="info-key">📋 Loan Type</span><span class="info-val"><span class="badge blue">Employee Society Loan</span></span></div>
+        <div class="info-row"><span class="info-key">💰 Original Amount</span><span class="info-val mono">₹${fmt(e.origAmt)}</span></div>
+        <div class="info-row"><span class="info-key">📊 Interest Rate</span><span class="info-val"><span class="badge gold">${e.rate}% p.a.</span></span></div>
+        <div class="info-row"><span class="info-key">🗓️ Loan Start Date</span><span class="info-val">${e.loanStart}</span></div>
+        <div class="info-row"><span class="info-key">🏷️ Total Share Capital</span><span class="info-val mono">₹${fmt(e.shareAmt)}</span></div>
+        <div class="info-row"><span class="info-key">📅 Monthly Share Deduction</span><span class="info-val mono">₹${fmt(e.shareDed)}</span></div>
+      </div>
+    </div>
+  `;
+}
+
+// ═══════════════════════════════════════════
+// HISTORY TAB
+// ═══════════════════════════════════════════
+const MO_NUM = {APR:4,MAY:5,JUN:6,JUL:7,AUG:8,SEP:9,OCT:10,NOV:11,DEC:12,JAN:1,FEB:2,MAR:3};
+function monthToNum(m) {
+  const p = m.toUpperCase().split('-');
+  const yr = 2000 + parseInt(p[1]||0);
+  const mo = MO_NUM[p[0]] || 0;
+  return yr * 100 + mo;
+}
+function sortedHist(code) {
+  return [...(HISTORY[code]||[])].sort((a,b)=>monthToNum(b.month)-monthToNum(a.month));
+}
+
+function getFiltered() {
+  const e = loggedEmp;
+  const all = sortedHist(e.code);
+  if (_histFilter === 'recent') return all.slice(0,3);
+  if (_histFilter === 'yearly') {
+    const sel = document.getElementById('yearSel')?.value || '2526';
+    return all.filter(h => {
+      const p = h.month.toUpperCase().split('-');
+      const mo = p[0]; const yr = parseInt(p[1]);
+      const aprilOnwards = ['APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+      if (aprilOnwards.includes(mo)) return yr === parseInt(sel.slice(0,2));
+      return yr === parseInt(sel.slice(2));
+    });
+  }
+  return all;
+}
+
+function pgHistory(el) { renderHistory(el); }
+
+function renderHistory(el) {
+  const filtered = getFiltered();
+  const tShare = filtered.reduce((s,h)=>s+(h.shareDed||0),0);
+  const tPrin  = filtered.reduce((s,h)=>s+(h.principal||0),0);
+  const tInt   = filtered.reduce((s,h)=>s+(h.interest||0),0);
+
+  let subFilter = '';
+  if (_histFilter === 'yearly') {
+    subFilter = `<div class="filter-row" style="margin-top:10px">
+      <select class="date-inp" id="yearSel" onchange="renderHistory(document.getElementById('pageContent'))" style="max-width:180px">
+        <option value="2526">FY 2025-26</option>
+        <option value="2425">FY 2024-25</option>
+      </select>
+    </div>`;
+  }
+
+  el.innerHTML = `
+    <div class="hist-filters">
+      <div class="filter-row">
+        <button class="filter-chip ${_histFilter==='recent'?'on':''}" onclick="setHF('recent')">🕐 Recent</button>
+        <button class="filter-chip ${_histFilter==='yearly'?'on':''}" onclick="setHF('yearly')">🗓️ Yearly</button>
+      </div>
+      ${subFilter}
+    </div>
+
+    <div class="hist-actions">
+      <button class="action-btn green" onclick="shareWA()">📲 WhatsApp</button>
+      <button class="action-btn gold"  onclick="showToast('📄 Statement feature coming soon!','ok')">📄 Statement</button>
+    </div>
+
+    <div class="hist-summary">
+      <div class="hs-card"><div class="hs-label">Months</div><div class="hs-val">${filtered.length}</div></div>
+      <div class="hs-card"><div class="hs-label">Share</div><div class="hs-val" style="color:var(--blue)">₹${fmt(tShare)}</div></div>
+      <div class="hs-card"><div class="hs-label">Principal</div><div class="hs-val green">₹${fmt(tPrin)}</div></div>
+      <div class="hs-card"><div class="hs-label">Interest</div><div class="hs-val red">₹${fmt(tInt)}</div></div>
+    </div>
+
+    ${filtered.length === 0
+      ? `<div class="empty"><div class="empty-ico">📭</div><div class="empty-txt">No records for this period</div></div>`
+      : filtered.map(h => {
+          const reduced = h.prevBal - h.balance;
+          return `<div class="hist-card">
+            <div class="hist-card-top">
+              <div>
+                <div class="hist-month">${h.month}</div>
+                <div class="hist-prev">Prev balance: ₹${fmt(h.prevBal)}</div>
+              </div>
+              <div class="hist-bal-wrap">
+                <div class="hist-bal">₹${fmt(h.balance)}</div>
+                <div class="hist-change down">▼ ₹${fmt(reduced)} reduced</div>
+              </div>
+            </div>
+            <div class="hist-card-bot">
+              <div class="hist-chip">
+                <div class="hist-chip-label">Total EMI</div>
+                <div class="hist-chip-val">₹${fmt(h.totalEmi)}</div>
+              </div>
+              <div class="hist-chip">
+                <div class="hist-chip-label">Share</div>
+                <div class="hist-chip-val s">₹${fmt(h.shareDed)}</div>
+              </div>
+              <div class="hist-chip">
+                <div class="hist-chip-label">Principal</div>
+                <div class="hist-chip-val p">₹${fmt(h.principal)}</div>
+              </div>
+              <div class="hist-chip">
+                <div class="hist-chip-label">Interest</div>
+                <div class="hist-chip-val i">₹${fmt(h.interest)}</div>
+              </div>
+            </div>
+          </div>`;
+        }).join('')
+    }
+  `;
+}
+
+function setHF(f) {
+  _histFilter = f;
+  renderHistory(document.getElementById('pageContent'));
+}
+
+function shareWA() {
+  const e = loggedEmp;
+  const filtered = getFiltered();
+  let msg = `🏦 *BDCCB Employee Society*\n*Loan Statement — ${e.name}*\nEmp Code: ${e.code} | Loan: ${e.loanNo}\n\n`;
+  filtered.forEach(h => {
+    msg += `📅 *${h.month}*\n  Balance: ₹${fmt(h.balance)}\n  EMI: ₹${fmt(h.totalEmi)} | Share: ₹${fmt(h.shareDed)} | Principal: ₹${fmt(h.principal)} | Interest: ₹${fmt(h.interest)}\n\n`;
+  });
+  const ts=filtered.reduce((s,h)=>s+h.shareDed,0);
+  const tp=filtered.reduce((s,h)=>s+h.principal,0);
+  const ti=filtered.reduce((s,h)=>s+h.interest,0);
+  msg += `*Total Share: ₹${fmt(ts)} | Principal: ₹${fmt(tp)} | Interest: ₹${fmt(ti)}*\n\n_Generated from BDCCB Society Portal_`;
+  window.open('https://wa.me/?text='+encodeURIComponent(msg));
+}
+
+// ═══════════════════════════════════════════
+// MY PROFILE TAB
+// ═══════════════════════════════════════════
+function calcService(doj) {
+  try {
+    const p = doj.split('-');
+    const mo = {Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11};
+    const start = new Date(parseInt(p[2]), mo[p[1]], parseInt(p[0]));
+    const now = new Date();
+    let y = now.getFullYear()-start.getFullYear(), m = now.getMonth()-start.getMonth();
+    if(m<0){y--;m+=12;}
+    if(y===0) return m+' month'+(m!==1?'s':'');
+    if(m===0) return y+' year'+(y!==1?'s':'');
+    return y+' yr'+(y!==1?'s':'')+' '+m+' mo';
+  } catch(e){return '—';}
+}
+
+function pgProfile(el) { renderProfile(el); }
+
+let _editKey = null;
+
+function renderProfile(el) {
+  const e = loggedEmp;
+  const service = calcService(e.doj);
+  el.innerHTML = `
+    <div class="prof-layout">
+
+      <!-- ═══ LEFT: VIEW ONLY ═══ -->
+      <div class="prof-left">
+
+        <!-- ID Card -->
+        <div class="prof-id-card">
+          <div class="prof-avatar">${e.name[0]}</div>
+          <div class="prof-name">${e.name}</div>
+          <div class="prof-code">${e.code}</div>
+          <div class="prof-tags">
+            <span class="ptag">${e.branch}</span>
+            <span class="ptag">${e.designation}</span>
+            <span class="ptag">${e.loanNo}</span>
+          </div>
+          <div class="service-badge">
+            <span class="sb-ico">🏅</span>
+            <div>
+              <div class="sb-text">${service} of Service</div>
+              <div class="sb-sub">Joined ${e.doj}</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Identity -->
+        <div class="info-panel">
+          <div class="info-panel-title">🪪 Identity</div>
+          <div class="ip-row"><span class="ip-key">Employee Code</span><span class="ip-val">${e.code}</span></div>
+          <div class="ip-row"><span class="ip-key">Customer ID</span><span class="ip-val">${e.custId}</span></div>
+          <div class="ip-row"><span class="ip-key">Loan Number</span><span class="ip-val">${e.loanNo}</span></div>
+          <div class="ip-row"><span class="ip-key">Date of Birth</span><span class="ip-val" style="font-family:var(--font)">${e.dob}</span></div>
+        </div>
+
+        <!-- Loan Details -->
+        <div class="info-panel">
+          <div class="info-panel-title">💰 Loan Details</div>
+          <div class="ip-row"><span class="ip-key">Loan Type</span><span class="ip-val"><span class="ip-badge blue">Society Loan</span></span></div>
+          <div class="ip-row"><span class="ip-key">Original Amount</span><span class="ip-val">₹${fmt(e.origAmt)}</span></div>
+          <div class="ip-row"><span class="ip-key">Monthly EMI</span><span class="ip-val">₹${fmt(e.emi)}</span></div>
+          <div class="ip-row"><span class="ip-key">Interest Rate</span><span class="ip-val"><span class="ip-badge gold">${e.rate}% p.a.</span></span></div>
+          <div class="ip-row"><span class="ip-key">Loan Start</span><span class="ip-val" style="font-family:var(--font)">${e.loanStart}</span></div>
+          <div class="ip-row"><span class="ip-key">Share Capital</span><span class="ip-val">₹${fmt(e.shareAmt)}</span></div>
+          <div class="ip-row"><span class="ip-key">Monthly Share Ded.</span><span class="ip-val"><span class="ip-badge teal">₹${fmt(e.shareDed)}</span></span></div>
+        </div>
+
+      </div>
+
+      <!-- ═══ RIGHT: EDITABLE FORM ═══ -->
+      <div class="prof-right">
+        <div class="prof-form-header">
+          <span class="pfh-ico">✏️</span>
+          <div>
+            <div class="pfh-title">My Details</div>
+            <div class="pfh-sub">Tap Edit to update your information</div>
+          </div>
+        </div>
+        <div class="prof-form-body">
+
+          <div class="pf-section-title">📞 Contact Info</div>
+          ${eRow('Mobile', e.mobile, 'mobile', 'tel')}
+          ${eRow('WhatsApp', e.whatsapp||'', 'whatsapp', 'tel')}
+          ${eRow('Email', e.email||'', 'email', 'email')}
+
+          <div class="pf-divider"></div>
+          <div class="pf-section-title">💼 Job Info</div>
+          ${eBranchRow(e.branch)}
+          ${eRow('Designation', e.designation, 'designation', 'text')}
+
+          <div class="pf-divider"></div>
+          <div class="pf-section-title">🏠 Address & Documents</div>
+          ${eRow('Address', e.address||'', 'address', 'text')}
+          ${eRow('Aadhar Card No.', e.aadhar||'', 'aadhar', 'text')}
+          ${eRow('PAN Number', e.pan||'', 'pan', 'text')}
+
+        </div>
+      </div>
+
+    </div>
+  `;
+}
+
+const BRANCHES = [
+  '1 - Head Office','2 - Bagalakote','3 - Navanagar','4 - Kaladagi',
+  '5 - Rampur','6 - Shirur','7 - Badami','8 - Kerur','9 - Guledgudda',
+  '10 - Kulageri Cross','11 - Katageri EC','12 - Bilagi','13 - Galagali',
+  '14 - Hunagund','15 - Amingad','16 - Ilakal','17 - Kamatagi','18 - Karadi',
+  '19 - Sangam','20 - Gudur','21 - Jamkhandi APMC','22 - Banahatti','23 - Terdal',
+  '24 - Savalagi','25 - Mudhol','26 - Mahalingapur','27 - Lokapur','28 - Halagali',
+  '29 - Rannanagar','30 - Chichkhandi','31 - Jamkhandi Bazar','32 - Gaddanakeri Cross',
+  '33 - Nagaral','34 - Nainegali','35 - Rabakavi','36 - Todalabhagi',
+  '37 - Neerabhudihal','38 - Belur','39 - Nadawadagi','40 - Kundragi',
+  '41 - Bhagavati','42 - Dhannur','43 - Nandikeshwar','44 - Hipparagi',
+  '45 - Girisagar','46 - Mantur','47 - Badagandi','48 - Baragi',
+  '49 - Navanagar (Sector 52/53)','50 - Railway Station Badami','51 - Metagudda',
+  '52 - Jamakhandi Road Branch','53 - Hunnur','54 - Anagawadi','55 - Neelagund',
+  '56 - Vidyagiri','57 - Teggi','58 - Konnur','59 - Ranna-Belagali',
+];
+
+function eBranchRow(val) {
+  const opts = BRANCHES.map(b =>
+    `<option value="${b}" ${b===val?'selected':''}>${b}</option>`
+  ).join('');
+  return `
+    <div class="pf-group" id="grp-branch">
+      <div class="pf-group-label">
+        Branch
+        <span class="pf-editable-tag">✏️ Editable</span>
+      </div>
+      <div class="pf-field-row">
+        <select class="branch-sel" onchange="saveBranchDrop(this.value)">
+          <option value="">— Select Branch —</option>
+          ${opts}
+        </select>
+      </div>
+    </div>`;
+}
+
+function saveBranchDrop(val) {
+  if(!val) return;
+  loggedEmp.branch = val;
+  // update header tag
+  const tags = document.querySelectorAll('.ptag');
+  if(tags[0]) tags[0].textContent = val;
+  showToast('✅ Branch updated!', 'ok');
+}
+
+function eRow(label, val, key, type='text') {
+  const display = val || '';
+  const isEmpty = !val || val === 'Not set';
+  return `
+    <div class="pf-group" id="grp-${key}">
+      <div class="pf-group-label">
+        ${label}
+        <span class="pf-editable-tag">✏️ Editable</span>
+      </div>
+      <div class="pf-field-row" id="row-${key}">
+        <span class="pf-field-val ${isEmpty?'empty':''}" id="fv-${key}">${isEmpty?'Not set':display}</span>
+        <button class="pf-edit-btn" onclick="startEdit('${key}','${display}','${type}')">Edit</button>
+      </div>
+    </div>`;
+}
+
+function startEdit(key, cur, type='text') {
+  const row = document.getElementById('row-'+key);
+  const fv  = document.getElementById('fv-'+key);
+  if(!row) return;
+  row.classList.add('editing');
+  fv.style.display = 'none';
+  row.querySelector('.pf-edit-btn').style.display = 'none';
+
+  const inp = document.createElement('div');
+  inp.style.width = '100%';
+  inp.innerHTML = `
+    <input class="pf-edit-inp" id="ei-${key}" type="${type}"
+      value="${cur === 'Not set' ? '' : cur}"
+      placeholder="Enter ${key}..."
+      onkeydown="if(event.key==='Enter')saveEdit('${key}');if(event.key==='Escape')cancelEdit('${key}','${cur}')">
+    <div class="pf-save-row">
+      <button class="pf-save-btn" onclick="saveEdit('${key}')">✅ Save</button>
+      <button class="pf-cancel-btn" onclick="cancelEdit('${key}','${cur}')">Cancel</button>
+    </div>`;
+  row.appendChild(inp);
+  setTimeout(() => document.getElementById('ei-'+key)?.focus(), 50);
+}
+
+function saveEdit(key) {
+  const inp = document.getElementById('ei-'+key);
+  if(!inp) return;
+  const val = inp.value.trim() || '';
+  loggedEmp[key] = val;
+  showToast('✅ '+key+' updated!','ok');
+  renderProfile(document.getElementById('pageContent'));
+}
+
+function cancelEdit(key, orig) {
+  renderProfile(document.getElementById('pageContent'));
+}
+
+// ═══════════════════════════════════════════
+// BOARD TAB
+// ═══════════════════════════════════════════
+function pgBoard(el) {
+  el.innerHTML = `
+    <div class="sec-title" style="margin-top:4px">🏛️ Board of Directors</div>
+    <div class="card" style="overflow:hidden">
+      <table style="width:100%;border-collapse:collapse;font-size:12px">
+        <thead>
+          <tr style="background:linear-gradient(135deg,var(--navy),var(--navy2))">
+            <th style="padding:10px 12px;text-align:left;color:rgba(255,255,255,.55);font-size:9.5px;text-transform:uppercase;letter-spacing:.06em;font-weight:700">Name</th>
+            <th style="padding:10px 12px;text-align:left;color:rgba(255,255,255,.55);font-size:9.5px;text-transform:uppercase;letter-spacing:.06em;font-weight:700">Position</th>
+            <th style="padding:10px 12px;text-align:center;color:rgba(255,255,255,.55);font-size:9.5px;text-transform:uppercase;letter-spacing:.06em;font-weight:700">Call</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${BOARD.map((b,i)=>`
+            <tr style="border-bottom:1px solid var(--border);background:${i%2===0?'#fff':'#f8fafc'}">
+              <td style="padding:12px">
+                <div style="display:flex;align-items:center;gap:9px">
+                  <div style="width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,var(--gold),var(--gold3));display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;color:var(--navy);flex-shrink:0">${b.ico}</div>
+                  <div style="font-size:12.5px;font-weight:700;color:var(--ink)">${b.name}</div>
+                </div>
+              </td>
+              <td style="padding:12px">
+                <span style="background:var(--goldp);border:1px solid rgba(201,148,26,.2);border-radius:6px;padding:3px 8px;font-size:10.5px;font-weight:700;color:var(--gold);white-space:nowrap">${b.pos}</span>
+              </td>
+              <td style="padding:12px;text-align:center">
+                <a href="tel:${b.phone}" style="background:var(--tealp);border:1.5px solid rgba(6,95,70,.2);border-radius:8px;padding:6px 12px;font-size:11px;font-weight:700;color:var(--teal);text-decoration:none;display:inline-block">📞 Call</a>
+              </td>
+            </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+// ═══════════════════════════════════════════
+// NOTICES TAB
+// ═══════════════════════════════════════════
+function pgNotices(el) {
+  const pinned = NOTICES.filter(n=>n.pinned);
+  const others = NOTICES.filter(n=>!n.pinned);
+  el.innerHTML = `
+    ${pinned.length?`<div class="sec-title" style="margin-top:4px">📌 Pinned</div>`:''}
+    ${pinned.map(n=>noticeCard(n)).join('')}
+    ${others.length?`<div class="sec-title">📋 All Notices</div>`:''}
+    ${others.map(n=>noticeCard(n)).join('')}
+  `;
+}
+
+function noticeCard(n) {
+  return `<div class="notice-card ${n.pinned?'pinned':''}">
+    <div class="notice-title">${n.pinned?'📌 ':''}${n.title}</div>
+    <div class="notice-body">${n.body}</div>
+    <div class="notice-date">🗓️ ${n.date}</div>
+  </div>`;
+}
+
+// ═══════════════════════════════════════════
+// FONT SIZE CONTROL
+// ═══════════════════════════════════════════
+// Steps: small=90%, medium=100%, large=112%, xlarge=126%
+
+
+// ═══════════════════════════════════════════
+// UTILS
+// ═══════════════════════════════════════════
+function fmt(n) { return Number(n).toLocaleString('en-IN'); }
+
+let _tt;
+function showToast(msg, type='ok') {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = 'toast '+type+' on';
+  clearTimeout(_tt); _tt = setTimeout(()=>t.classList.remove('on'), 3000);
+}
+</script>
+</body>
+</html>
