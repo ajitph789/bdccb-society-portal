@@ -439,7 +439,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--ink);min-height:10
 // ═══════════════════════════════════════════
 // API CONFIGURATION — Paste your Apps Script URL below
 // ═══════════════════════════════════════════
-const API_URL = 'https://script.google.com/macros/s/AKfycbwlaNVX2jf3uYJTh2hsGyt0sr-NiCoZHueiWkCAjPgkXDu8yVxXvyEni3gTyKVVhIlK/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbw9CafvWtWUjl6Q8YaUor5Wa3M159gex294Fm4qIz-YwtRah_Ztf8KG5xHp3s8POQI3/exec';
 const APP_VERSION = 3.0;
 
 // ═══════════════════════════════════════════
@@ -569,7 +569,7 @@ async function doLogin() {
   btn.textContent = 'Logging in…'; btn.disabled = true;
 
   // If API URL is set — fetch from sheet
-  if (API_URL && API_URL !== 'https://script.google.com/macros/s/AKfycbwlaNVX2jf3uYJTh2hsGyt0sr-NiCoZHueiWkCAjPgkXDu8yVxXvyEni3gTyKVVhIlK/exec') {
+  if (API_URL && API_URL !== 'https://script.google.com/macros/s/AKfycbw9CafvWtWUjl6Q8YaUor5Wa3M159gex294Fm4qIz-YwtRah_Ztf8KG5xHp3s8POQI3/exec') {
     const res = await apiCall('login', { empCode: code });
     btn.textContent = 'Login →'; btn.disabled = false;
 
@@ -1002,7 +1002,7 @@ function saveBranchDrop(val) {
   loggedEmp.branch = val;
   const tags = document.querySelectorAll('.ptag');
   if(tags[0]) tags[0].textContent = val;
-  if (API_URL && API_URL !== 'https://script.google.com/macros/s/AKfycbwlaNVX2jf3uYJTh2hsGyt0sr-NiCoZHueiWkCAjPgkXDu8yVxXvyEni3gTyKVVhIlK/exec') {
+  if (API_URL && API_URL !== 'https://script.google.com/macros/s/AKfycbw9CafvWtWUjl6Q8YaUor5Wa3M159gex294Fm4qIz-YwtRah_Ztf8KG5xHp3s8POQI3/exec') {
     apiCall('updateProfile', { empCode: loggedEmp.code, updates: { 'Branch': val } });
   }
   showToast('✅ Branch updated!', 'ok');
@@ -1058,7 +1058,7 @@ async function saveEdit(key) {
     email:'Email', address:'Address', aadhar:'Aadhar Card No.', pan:'PAN Number'
   };
   const sheetField = fieldMap[key];
-  if (sheetField && API_URL && API_URL !== 'https://script.google.com/macros/s/AKfycbwlaNVX2jf3uYJTh2hsGyt0sr-NiCoZHueiWkCAjPgkXDu8yVxXvyEni3gTyKVVhIlK/exec') {
+  if (sheetField && API_URL && API_URL !== 'https://script.google.com/macros/s/AKfycbw9CafvWtWUjl6Q8YaUor5Wa3M159gex294Fm4qIz-YwtRah_Ztf8KG5xHp3s8POQI3/exec') {
     apiCall('updateProfile', { empCode: loggedEmp.code, updates: { [sheetField]: val } });
   }
   showToast('✅ '+key+' updated!','ok');
