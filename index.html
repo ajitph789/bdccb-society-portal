@@ -446,43 +446,30 @@ const APP_VERSION = 3.0;
 // API CALL HELPER
 // ═══════════════════════════════════════════
 async function apiCall(action, extraData = {}) {
-  const body = { action, version: APP_VERSION, ...extraData };
-  
-  // Method 1: Direct POST to Apps Script (works with CORS headers)
-  try {
-    const res = await fetch(API_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain' },
-      body: JSON.stringify(body),
-    });
-    const text = await res.text();
-    const json = JSON.parse(text);
-    if (json) return json;
-  } catch(e1) {}
+  const body = JSON.stringify({ action, version: APP_VERSION, ...extraData });
 
-  // Method 2: corsproxy.io
+  // Method 1: Direct POST (no Content-Type header = no CORS preflight)
   try {
-    const res = await fetch(`https://corsproxy.io/?${encodeURIComponent(API_URL)}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain' },
-      body: JSON.stringify(body),
-    });
-    const json = await res.json();
-    if (json) return json;
-  } catch(e2) {}
+    const res = await fetch(API_URL, { method:'POST', redirect:'follow', body });
+    const json = JSON.parse(await res.text());
+    if (json && json.ok !== undefined) return json;
+  } catch(e1) { console.warn('M1:', e1.message); }
 
-  // Method 3: allorigins
+  // Method 2: corsproxy.io POST
   try {
-    const res = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(API_URL)}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain' },
-      body: JSON.stringify(body),
-    });
-    const json = await res.json();
-    if (json) return json;
-  } catch(e3) {}
+    const res = await fetch('https://corsproxy.io/?' + encodeURIComponent(API_URL), { method:'POST', body });
+    const json = JSON.parse(await res.text());
+    if (json && json.ok !== undefined) return json;
+  } catch(e2) { console.warn('M2:', e2.message); }
 
-  return { ok: false, error: 'network_error', message: 'Cannot reach server.' };
+  // Method 3: allorigins POST
+  try {
+    const res = await fetch('https://api.allorigins.win/raw?url=' + encodeURIComponent(API_URL), { method:'POST', body });
+    const json = JSON.parse(await res.text());
+    if (json && json.ok !== undefined) return json;
+  } catch(e3) { console.warn('M3:', e3.message); }
+
+  return { ok: false, error: 'network_error' };
 }
 
 // ═══════════════════════════════════════════
@@ -588,7 +575,7 @@ async function doLogin() {
   btn.textContent = 'Logging in…'; btn.disabled = true;
 
   // If API URL is set — fetch from sheet
-  if (API_URL && API_URL !== 'https://script.google.com/macros/s/AKfycbw9CafvWtWUjl6Q8YaUor5Wa3M159gex294Fm4qIz-YwtRah_Ztf8KG5xHp3s8POQI3/exec') {
+  if (API_URL) {
     const res = await apiCall('login', { empCode: code });
     btn.textContent = 'Login →'; btn.disabled = false;
 
@@ -601,19 +588,26 @@ async function doLogin() {
       return;
     }
 
-    loggedEmp = res.employee;
+      loggedEmp = res.employee;
 
-    // Also fetch history, board, notices in background
-    apiCall('getHistory', { empCode: code }).then(r => {
-      if (r.ok) HISTORY[code] = r.history;
-    });
-    apiCall('getBoard').then(r => {
-      if (r.ok) BOARD.splice(0, BOARD.length, ...r.board);
-    });
-    apiCall('getNotices').then(r => {
-      if (r.ok) NOTICES.splice(0, NOTICES.length, ...r.notices);
-    });
+      // Fetch history, board, notices in background
+      apiCall('getHistory', { empCode: code }).then(r => {
+        if (r.ok) HISTORY[code] = r.history;
+      });
+      apiCall('getBoard').then(r => {
+        if (r.ok) BOARD.splice(0, BOARD.length, ...r.board);
+      });
+      apiCall('getNotices').then(r => {
+        if (r.ok) NOTICES.splice(0, NOTICES.length, ...r.notices);
+      });
 
+      document.getElementById('hdrName').textContent = loggedEmp.name.split(' ')[0];
+      buildTabs();
+      document.getElementById('loginScreen').classList.remove('on');
+      document.getElementById('appScreen').classList.add('on');
+      switchTab('loan');
+      return;
+    }
   } else {
     // Demo mode — use sample data
     btn.textContent = 'Login →'; btn.disabled = false;
@@ -1021,7 +1015,7 @@ function saveBranchDrop(val) {
   loggedEmp.branch = val;
   const tags = document.querySelectorAll('.ptag');
   if(tags[0]) tags[0].textContent = val;
-  if (API_URL && API_URL !== 'https://script.google.com/macros/s/AKfycbw9CafvWtWUjl6Q8YaUor5Wa3M159gex294Fm4qIz-YwtRah_Ztf8KG5xHp3s8POQI3/exec') {
+  if (API_URL) {
     apiCall('updateProfile', { empCode: loggedEmp.code, updates: { 'Branch': val } });
   }
   showToast('✅ Branch updated!', 'ok');
@@ -1077,7 +1071,7 @@ async function saveEdit(key) {
     email:'Email', address:'Address', aadhar:'Aadhar Card No.', pan:'PAN Number'
   };
   const sheetField = fieldMap[key];
-  if (sheetField && API_URL && API_URL !== 'https://script.google.com/macros/s/AKfycbw9CafvWtWUjl6Q8YaUor5Wa3M159gex294Fm4qIz-YwtRah_Ztf8KG5xHp3s8POQI3/exec') {
+  if (sheetField && API_URL) {
     apiCall('updateProfile', { empCode: loggedEmp.code, updates: { [sheetField]: val } });
   }
   showToast('✅ '+key+' updated!','ok');
