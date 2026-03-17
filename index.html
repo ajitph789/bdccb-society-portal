@@ -399,13 +399,14 @@ body{font-family:var(--font);background:var(--bg);color:var(--ink);min-height:10
       <div class="login-ico">🏦</div>
       <div class="login-title">BDCCB Employee Society</div>
       <div class="login-sub">Bagalkot District Central Co-operative Bank Ltd.</div>
+      <div style="margin-top:10px;font-size:13px;color:rgba(255,255,255,.7);font-weight:500">ಬಾಗಲಕೋಟೆ ಜಿಲ್ಲಾ ಕೇಂದ್ರ ಸಹಕಾರ ಬ್ಯಾಂಕ್</div>
     </div>
     <div class="login-body">
       <div class="fld">
         <label>Employee Code</label>
         <div class="inp-wrap">
           <span class="inp-ico">🪪</span>
-          <input class="inp" id="empCode" type="text" placeholder="Enter Employee Code"
+          <input class="inp" id="empCode" type="text" placeholder="ನಿಮ್ಮ Employee Code ನಮೂದಿಸಿ"
             autocomplete="off" autocapitalize="characters"
             onkeydown="if(event.key==='Enter')doLogin()">
         </div>
@@ -824,16 +825,38 @@ function shareWA() {
 // ═══════════════════════════════════════════
 function calcService(doj) {
   try {
-    const p = doj.split('-');
+    if (!doj) return '—';
+    const str = doj.toString().trim();
+    let start;
     const mo = {Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11};
-    const start = new Date(parseInt(p[2]), mo[p[1]], parseInt(p[0]));
+    // Format: DD-Mon-YYYY e.g. 01-Apr-2010
+    if (/\d{2}-[A-Za-z]{3}-\d{4}/.test(str)) {
+      const p = str.split('-');
+      start = new Date(parseInt(p[2]), mo[p[1]], parseInt(p[0]));
+    }
+    // Format: DD/MM/YYYY e.g. 16/12/2020
+    else if (/\d{1,2}\/\d{1,2}\/\d{4}/.test(str)) {
+      const p = str.split('/');
+      start = new Date(parseInt(p[2]), parseInt(p[1])-1, parseInt(p[0]));
+    }
+    // Format: YYYY-MM-DD
+    else if (/\d{4}-\d{2}-\d{2}/.test(str)) {
+      start = new Date(str);
+    }
+    // Try generic parse
+    else {
+      start = new Date(str);
+    }
+    if (!start || isNaN(start.getTime())) return '—';
     const now = new Date();
-    let y = now.getFullYear()-start.getFullYear(), m = now.getMonth()-start.getMonth();
+    let y = now.getFullYear()-start.getFullYear();
+    let m = now.getMonth()-start.getMonth();
     if(m<0){y--;m+=12;}
+    if(y<0) return '—';
     if(y===0) return m+' month'+(m!==1?'s':'');
     if(m===0) return y+' year'+(y!==1?'s':'');
     return y+' yr'+(y!==1?'s':'')+' '+m+' mo';
-  } catch(e){return '—';}
+  } catch(e){ return '—'; }
 }
 
 function pgProfile(el) { renderProfile(el); }
@@ -1037,35 +1060,27 @@ function cancelEdit(key, orig) {
 // BOARD TAB
 // ═══════════════════════════════════════════
 function pgBoard(el) {
+  if (!BOARD.length) {
+    el.innerHTML = `<div class="empty"><div class="empty-ico">🏛️</div><div class="empty-txt">Board data loading...</div></div>`;
+    apiCall('getBoard').then(r => {
+      if (r.ok && r.board) { BOARD.splice(0,BOARD.length,...r.board); pgBoard(el); }
+    });
+    return;
+  }
   el.innerHTML = `
-    <div class="sec-title" style="margin-top:4px">🏛️ Board of Directors</div>
-    <div class="card" style="overflow:hidden">
-      <table style="width:100%;border-collapse:collapse;font-size:12px">
-        <thead>
-          <tr style="background:linear-gradient(135deg,var(--navy),var(--navy2))">
-            <th style="padding:10px 12px;text-align:left;color:rgba(255,255,255,.55);font-size:9.5px;text-transform:uppercase;letter-spacing:.06em;font-weight:700">Name</th>
-            <th style="padding:10px 12px;text-align:left;color:rgba(255,255,255,.55);font-size:9.5px;text-transform:uppercase;letter-spacing:.06em;font-weight:700">Position</th>
-            <th style="padding:10px 12px;text-align:center;color:rgba(255,255,255,.55);font-size:9.5px;text-transform:uppercase;letter-spacing:.06em;font-weight:700">Call</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${BOARD.map((b,i)=>`
-            <tr style="border-bottom:1px solid var(--border);background:${i%2===0?'#fff':'#f8fafc'}">
-              <td style="padding:12px">
-                <div style="display:flex;align-items:center;gap:9px">
-                  <div style="width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,var(--gold),var(--gold3));display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;color:var(--navy);flex-shrink:0">${b.ico}</div>
-                  <div style="font-size:12.5px;font-weight:700;color:var(--ink)">${b.name}</div>
-                </div>
-              </td>
-              <td style="padding:12px">
-                <span style="background:var(--goldp);border:1px solid rgba(201,148,26,.2);border-radius:6px;padding:3px 8px;font-size:10.5px;font-weight:700;color:var(--gold);white-space:nowrap">${b.pos}</span>
-              </td>
-              <td style="padding:12px;text-align:center">
-                <a href="tel:${b.phone}" style="background:var(--tealp);border:1.5px solid rgba(6,95,70,.2);border-radius:8px;padding:6px 12px;font-size:11px;font-weight:700;color:var(--teal);text-decoration:none;display:inline-block">📞 Call</a>
-              </td>
-            </tr>`).join('')}
-        </tbody>
-      </table>
+    <div class="sec-title" style="margin-top:4px">🏛️ ಆಡಳಿತ ಮಂಡಳಿ — Board of Directors</div>
+    <div style="background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 2px 12px rgba(13,31,60,.08)">
+      ${BOARD.map((b,i)=>`
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:${i<BOARD.length-1?'1px solid #f1f5f9':'none'};background:${i%2===0?'#fff':'#f8fafc'}">
+          <div style="display:flex;align-items:center;gap:12px;flex:1;min-width:0">
+            <div style="width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,#0a2342,#1a4a7a);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:900;color:#fff;flex-shrink:0">${(b.name||'?')[0]}</div>
+            <div style="min-width:0">
+              <div style="font-size:13px;font-weight:700;color:#0d1f3c;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${b.name||'—'}</div>
+              <div style="font-size:11px;font-weight:600;color:#c9941a;margin-top:2px">${b.pos||b.position||'—'}</div>
+            </div>
+          </div>
+          <a href="tel:${b.phone||b.mobile||''}" style="flex-shrink:0;background:#ecfdf5;border:1.5px solid rgba(6,95,70,.2);border-radius:10px;padding:8px 14px;font-size:12px;font-weight:700;color:#065f46;text-decoration:none;margin-left:10px">📞 Call</a>
+        </div>`).join('')}
     </div>
   `;
 }
@@ -1074,6 +1089,13 @@ function pgBoard(el) {
 // NOTICES TAB
 // ═══════════════════════════════════════════
 function pgNotices(el) {
+  if (!NOTICES.length) {
+    el.innerHTML = `<div class="empty"><div class="empty-ico">📢</div><div class="empty-txt">Notices loading...</div></div>`;
+    apiCall('getNotices').then(r => {
+      if (r.ok && r.notices) { NOTICES.splice(0,NOTICES.length,...r.notices); pgNotices(el); }
+    });
+    return;
+  }
   const pinned = NOTICES.filter(n=>n.pinned);
   const others = NOTICES.filter(n=>!n.pinned);
   el.innerHTML = `
@@ -1106,13 +1128,17 @@ function fmt(n) { return Number(n).toLocaleString('en-IN'); }
 function fmtDate(val) {
   if (!val) return '—';
   const str = val.toString().trim();
-  // Already formatted like "01-Apr-2010" — return as is
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  // Already DD-Mon-YYYY
   if (/\d{2}-[A-Za-z]{3}-\d{4}/.test(str)) return str;
-  // Try to parse and format
+  // DD/MM/YYYY
+  if (/\d{1,2}\/\d{1,2}\/\d{4}/.test(str)) {
+    const p = str.split('/');
+    return String(p[0]).padStart(2,'0') + '-' + months[parseInt(p[1])-1] + '-' + p[2];
+  }
   try {
     const d = new Date(str);
     if (isNaN(d.getTime())) return str;
-    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
     return String(d.getDate()).padStart(2,'0') + '-' + months[d.getMonth()] + '-' + d.getFullYear();
   } catch(e) { return str; }
 }
