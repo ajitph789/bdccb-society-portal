@@ -394,21 +394,23 @@ body{font-family:var(--font);background:var(--bg);color:var(--ink);min-height:10
     <div class="login-top">
       <div class="login-ico">🏦</div>
       <div class="login-title">BDCCB Employee Society</div>
-      <div class="login-sub">Bagalkot DCC Bank Ltd.</div>
+      <div class="login-sub">Bagalkot District Central Co-operative Bank Ltd.</div>
     </div>
     <div class="login-body">
-      <div class="login-hint">ℹ️ Enter your Employee Code to login. Contact admin if you don't have it.</div>
       <div class="fld">
         <label>Employee Code</label>
         <div class="inp-wrap">
           <span class="inp-ico">🪪</span>
-          <input class="inp" id="empCode" type="text" placeholder="e.g. EMP001" autocomplete="off" autocapitalize="characters"
+          <input class="inp" id="empCode" type="text" placeholder="Enter your Employee Code"
+            autocomplete="off" autocapitalize="characters"
             onkeydown="if(event.key==='Enter')doLogin()">
         </div>
       </div>
       <button class="login-btn" onclick="doLogin()">Login →</button>
       <div class="login-err" id="loginErr">❌ Invalid Employee Code. Please try again.</div>
-      <div class="demo-codes">Demo codes: <b>EMP001</b> · <b>EMP002</b> · <b>EMP003</b></div>
+      <div style="text-align:center;margin-top:16px;font-size:11.5px;color:var(--muted);line-height:1.6">
+        🔒 Secure portal for BDCCB employees only.<br>Contact admin for your Employee Code.
+      </div>
     </div>
   </div>
 </div>
@@ -475,79 +477,13 @@ async function apiCall(action, extraData = {}) {
 // ═══════════════════════════════════════════
 // SAMPLE DATA (used only if API_URL not set)
 // ═══════════════════════════════════════════
-const EMPLOYEES = {
-  'EMP001': {
-    code:'EMP001', name:'Ramesh Kumar', custId:'CUST1001',
-    branch:'Bagalkot HO', designation:'Senior Accountant',
-    doj:'01-Apr-2010', dob:'15-Jun-1985',
-    mobile:'9876543210', whatsapp:'9876543210', email:'ramesh@email.com',
-    loanNo:'LN10001', origAmt:500000, emi:12500, rate:10.5,
-    loanStart:'01-Apr-2022', shareAmt:25000, shareDed:400,
-  },
-  'EMP002': {
-    code:'EMP002', name:'Sunita Patil', custId:'CUST1002',
-    branch:'Jamkhandi', designation:'Loan Officer',
-    doj:'15-Jun-2012', dob:'22-Mar-1988',
-    mobile:'9845612300', whatsapp:'9845612300', email:'sunita@email.com',
-    loanNo:'LN10002', origAmt:800000, emi:18000, rate:9.5,
-    loanStart:'01-Jan-2021', shareAmt:15000, shareDed:400,
-  },
-  'EMP003': {
-    code:'EMP003', name:'Vijay Desai', custId:'CUST1003',
-    branch:'Mudhol', designation:'Clerk',
-    doj:'01-Mar-2015', dob:'10-Dec-1990',
-    mobile:'9731234560', whatsapp:'', email:'',
-    loanNo:'LN10003', origAmt:300000, emi:8500, rate:11.0,
-    loanStart:'01-Jul-2023', shareAmt:10000, shareDed:400,
-  },
-};
+const EMPLOYEES = {}; // Data loaded from Google Sheet
 
-// All values entered as-is — no auto-calculation
-const HISTORY = {
-  'EMP001': [
-    {month:'Apr-25',prevBal:500000,balance:492275,totalEmi:12500,shareDed:400,principal:7725,interest:4375},
-    {month:'May-25',prevBal:492275,balance:484482,totalEmi:12500,shareDed:400,principal:7793,interest:4307},
-    {month:'Jun-25',prevBal:484482,balance:476621,totalEmi:12500,shareDed:400,principal:7861,interest:4239},
-    {month:'Jul-25',prevBal:476621,balance:468691,totalEmi:12500,shareDed:400,principal:7930,interest:4170},
-    {month:'Aug-25',prevBal:468691,balance:460692,totalEmi:12500,shareDed:400,principal:7999,interest:4101},
-    {month:'Sep-25',prevBal:460692,balance:452623,totalEmi:12500,shareDed:400,principal:8069,interest:4031},
-    {month:'Oct-25',prevBal:452623,balance:444483,totalEmi:12500,shareDed:400,principal:8140,interest:3960},
-    {month:'Nov-25',prevBal:444483,balance:436272,totalEmi:12500,shareDed:400,principal:8211,interest:3889},
-    {month:'Dec-25',prevBal:436272,balance:427989,totalEmi:12500,shareDed:400,principal:8283,interest:3817},
-    {month:'Jan-26',prevBal:427989,balance:419634,totalEmi:12500,shareDed:400,principal:8355,interest:3745},
-    {month:'Feb-26',prevBal:419634,balance:411206,totalEmi:12500,shareDed:400,principal:8428,interest:3672},
-    {month:'Mar-26',prevBal:411206,balance:402704,totalEmi:12500,shareDed:400,principal:8502,interest:3598},
-  ],
-  'EMP002': [
-    {month:'Oct-25',prevBal:800000,balance:788733,totalEmi:18000,shareDed:400,principal:11267,interest:6333},
-    {month:'Nov-25',prevBal:788733,balance:777377,totalEmi:18000,shareDed:400,principal:11356,interest:6244},
-    {month:'Dec-25',prevBal:777377,balance:765931,totalEmi:18000,shareDed:400,principal:11446,interest:6154},
-    {month:'Jan-26',prevBal:765931,balance:754395,totalEmi:18000,shareDed:400,principal:11536,interest:6064},
-    {month:'Feb-26',prevBal:754395,balance:742767,totalEmi:18000,shareDed:400,principal:11628,interest:5972},
-    {month:'Mar-26',prevBal:742767,balance:731047,totalEmi:18000,shareDed:400,principal:11720,interest:5880},
-  ],
-  'EMP003': [
-    {month:'Nov-25',prevBal:300000,balance:294650,totalEmi:8500,shareDed:400,principal:5350,interest:2750},
-    {month:'Dec-25',prevBal:294650,balance:289251,totalEmi:8500,shareDed:400,principal:5399,interest:2701},
-    {month:'Jan-26',prevBal:289251,balance:283802,totalEmi:8500,shareDed:400,principal:5449,interest:2651},
-    {month:'Feb-26',prevBal:283802,balance:278304,totalEmi:8500,shareDed:400,principal:5498,interest:2602},
-    {month:'Mar-26',prevBal:278304,balance:272755,totalEmi:8500,shareDed:400,principal:5549,interest:2551},
-  ],
-};
+const HISTORY = {}; // Loaded from Google Sheet
 
-const BOARD = [
-  {name:'Shri. Basavaraj Patil',  pos:'President',      phone:'9876500001', ico:'B'},
-  {name:'Shri. Mallikarjun Bagi', pos:'Vice President', phone:'9876500002', ico:'M'},
-  {name:'Smt. Laxmi Gudadinni',   pos:'Secretary',      phone:'9876500003', ico:'L'},
-  {name:'Shri. Raju Hugar',       pos:'Treasurer',      phone:'9876500004', ico:'R'},
-];
+const BOARD = []; // Loaded from Google Sheet
 
-const NOTICES = [
-  {title:'Monthly EMI Reminder',   body:'Dear members, please ensure your EMI is deducted before 5th of every month. Contact office for any issues.',date:'01-Mar-2026',pinned:true},
-  {title:'Annual General Meeting', body:'AGM scheduled on 25-Mar-2026 at 11:00 AM at Head Office. All members are requested to attend.',date:'10-Mar-2026',pinned:true},
-  {title:'New Loan Applications',  body:'Members can apply for fresh loans from 01-Apr-2026. Submit application to society office with required documents.',date:'05-Mar-2026',pinned:false},
-  {title:'Share Amount Update',    body:'Share amount has been updated for FY 2025-26. Please verify your share amount in My Profile tab.',date:'01-Feb-2026',pinned:false},
-];
+const NOTICES = []; // Loaded from Google Sheet
 
 const TABS = [
   {id:'loan',    ico:'💰', lbl:'My Loan'},
