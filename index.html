@@ -447,23 +447,42 @@ const APP_VERSION = 3.0;
 // ═══════════════════════════════════════════
 async function apiCall(action, extraData = {}) {
   const body = { action, version: APP_VERSION, ...extraData };
-  const proxies = [
-    u => u,
-    u => `https://corsproxy.io/?${encodeURIComponent(u)}`,
-    u => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
-  ];
-  for (const proxy of proxies) {
-    try {
-      const res = await fetch(proxy(API_URL), {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-      });
-      const json = await res.json();
-      return json;
-    } catch(e) { continue; }
-  }
-  return { ok: false, error: 'network_error', message: 'Cannot reach server. Check internet.' };
+  
+  // Method 1: Direct POST to Apps Script (works with CORS headers)
+  try {
+    const res = await fetch(API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify(body),
+    });
+    const text = await res.text();
+    const json = JSON.parse(text);
+    if (json) return json;
+  } catch(e1) {}
+
+  // Method 2: corsproxy.io
+  try {
+    const res = await fetch(`https://corsproxy.io/?${encodeURIComponent(API_URL)}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify(body),
+    });
+    const json = await res.json();
+    if (json) return json;
+  } catch(e2) {}
+
+  // Method 3: allorigins
+  try {
+    const res = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(API_URL)}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify(body),
+    });
+    const json = await res.json();
+    if (json) return json;
+  } catch(e3) {}
+
+  return { ok: false, error: 'network_error', message: 'Cannot reach server.' };
 }
 
 // ═══════════════════════════════════════════
