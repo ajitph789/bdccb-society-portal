@@ -627,6 +627,7 @@ async function doLogin() {
   buildTabs();
   document.getElementById('loginScreen').classList.remove('on');
   document.getElementById('appScreen').classList.add('on');
+  window.scrollTo(0,0);
   switchTab('loan');
 }
 
@@ -668,6 +669,7 @@ function switchTab(id) {
   const el = document.getElementById('pageContent');
   el.innerHTML = '';
   el.scrollTop = 0;
+  window.scrollTo(0,0);
   _histFilter = 'recent';
   ({loan:pgLoan, history:pgHistory, profile:pgProfile, board:pgBoard, notices:pgNotices})[id]?.(el);
   applyFontSize();
@@ -718,7 +720,7 @@ function pgLoan(el) {
         <div class="hero-chip">
           <div class="hero-chip-label">Interest Paid</div>
           <div class="hero-chip-val">₹${fmt(totalIntPaid)}</div>
-          <div class="hero-chip-sub">Since ${e.loanStart}</div>
+          <div class="hero-chip-sub">Since ${fmtDate(e.loanStart)}</div>
         </div>
         <div class="hero-chip">
           <div class="hero-chip-label">Share / Month</div>
@@ -741,7 +743,7 @@ function pgLoan(el) {
         <div class="info-row"><span class="info-key">📋 Loan Type</span><span class="info-val"><span class="badge blue">Employee Society Loan</span></span></div>
         <div class="info-row"><span class="info-key">💰 Original Amount</span><span class="info-val mono">₹${fmt(e.origAmt)}</span></div>
         <div class="info-row"><span class="info-key">📊 Interest Rate</span><span class="info-val"><span class="badge gold">${e.rate}% p.a.</span></span></div>
-        <div class="info-row"><span class="info-key">🗓️ Loan Start Date</span><span class="info-val">${e.loanStart}</span></div>
+        <div class="info-row"><span class="info-key">🗓️ Loan Start Date</span><span class="info-val">${fmtDate(e.loanStart)}</span></div>
         <div class="info-row"><span class="info-key">🏷️ Total Share Capital</span><span class="info-val mono">₹${fmt(e.shareAmt)}</span></div>
         <div class="info-row"><span class="info-key">📅 Monthly Share Deduction</span><span class="info-val mono">₹${fmt(e.shareDed)}</span></div>
       </div>
@@ -921,7 +923,7 @@ function renderProfile(el) {
             <span class="sb-ico">🏅</span>
             <div>
               <div class="sb-text">${service} of Service</div>
-              <div class="sb-sub">Joined ${e.doj}</div>
+              <div class="sb-sub">Joined ${fmtDate(e.doj)}</div>
             </div>
           </div>
         </div>
@@ -932,7 +934,7 @@ function renderProfile(el) {
           <div class="ip-row"><span class="ip-key">Employee Code</span><span class="ip-val">${e.code}</span></div>
           <div class="ip-row"><span class="ip-key">Customer ID</span><span class="ip-val">${e.custId}</span></div>
           <div class="ip-row"><span class="ip-key">Loan Number</span><span class="ip-val">${e.loanNo}</span></div>
-          <div class="ip-row"><span class="ip-key">Date of Birth</span><span class="ip-val" style="font-family:var(--font)">${e.dob}</span></div>
+          <div class="ip-row"><span class="ip-key">Date of Birth</span><span class="ip-val" style="font-family:var(--font)">${fmtDate(e.dob)}</span></div>
         </div>
 
         <!-- Loan Details -->
@@ -942,7 +944,7 @@ function renderProfile(el) {
           <div class="ip-row"><span class="ip-key">Original Amount</span><span class="ip-val">₹${fmt(e.origAmt)}</span></div>
           <div class="ip-row"><span class="ip-key">Monthly EMI</span><span class="ip-val">₹${fmt(e.emi)}</span></div>
           <div class="ip-row"><span class="ip-key">Interest Rate</span><span class="ip-val"><span class="ip-badge gold">${e.rate}% p.a.</span></span></div>
-          <div class="ip-row"><span class="ip-key">Loan Start</span><span class="ip-val" style="font-family:var(--font)">${e.loanStart}</span></div>
+          <div class="ip-row"><span class="ip-key">Loan Start</span><span class="ip-val" style="font-family:var(--font)">${fmtDate(e.loanStart)}</span></div>
           <div class="ip-row"><span class="ip-key">Share Capital</span><span class="ip-val">₹${fmt(e.shareAmt)}</span></div>
           <div class="ip-row"><span class="ip-key">Monthly Share Ded.</span><span class="ip-val"><span class="ip-badge teal">₹${fmt(e.shareDed)}</span></span></div>
         </div>
@@ -1160,6 +1162,20 @@ function noticeCard(n) {
 // UTILS
 // ═══════════════════════════════════════════
 function fmt(n) { return Number(n).toLocaleString('en-IN'); }
+
+function fmtDate(val) {
+  if (!val) return '—';
+  const str = val.toString().trim();
+  // Already formatted like "01-Apr-2010" — return as is
+  if (/\d{2}-[A-Za-z]{3}-\d{4}/.test(str)) return str;
+  // Try to parse and format
+  try {
+    const d = new Date(str);
+    if (isNaN(d.getTime())) return str;
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    return String(d.getDate()).padStart(2,'0') + '-' + months[d.getMonth()] + '-' + d.getFullYear();
+  } catch(e) { return str; }
+}
 
 let _tt;
 function showToast(msg, type='ok') {
