@@ -25,8 +25,8 @@
 html{scroll-behavior:smooth}
 body{font-family:var(--font);background:var(--bg);color:var(--ink);min-height:100dvh;overflow-x:hidden}
 
-.screen{display:none!important}
-.screen.on{display:flex!important;flex-direction:column;min-height:100dvh}
+.screen{display:none}
+.screen.on{display:flex;flex-direction:column;min-height:100dvh}
 #loginScreen.on{display:flex!important;align-items:center;justify-content:center}
 
 @keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
@@ -574,48 +574,55 @@ async function doLogin() {
   const btn = document.querySelector('.login-btn');
   btn.textContent = 'Logging in…'; btn.disabled = true;
 
-  // If API URL is set — fetch from sheet
-  if (API_URL) {
+  try {
+    // Try API first
     const res = await apiCall('login', { empCode: code });
-    btn.textContent = 'Login →'; btn.disabled = false;
 
     if (res.blocked) {
+      btn.textContent = 'Login →'; btn.disabled = false;
       showLoginErr('⚠️ Outdated version. Please open latest link.');
       return;
     }
-    if (!res.ok || !res.employee) {
+
+    if (res.error === 'network_error') {
+      // API failed — try demo data
+      const emp = EMPLOYEES[code];
+      if (!emp) {
+        btn.textContent = 'Login →'; btn.disabled = false;
+        showLoginErr('❌ Invalid Employee Code. Please try again.');
+        return;
+      }
+      loggedEmp = {...emp};
+    } else if (!res.ok || !res.employee) {
+      btn.textContent = 'Login →'; btn.disabled = false;
+      showLoginErr('❌ Invalid Employee Code. Please try again.');
+      return;
+    } else {
+      // API success!
+      loggedEmp = res.employee;
+      // Load history, board, notices in background
+      apiCall('getHistory', { empCode: code }).then(r => {
+        if (r.ok && r.history) HISTORY[code] = r.history;
+      });
+      apiCall('getBoard').then(r => {
+        if (r.ok && r.board) BOARD.splice(0, BOARD.length, ...r.board);
+      });
+      apiCall('getNotices').then(r => {
+        if (r.ok && r.notices) NOTICES.splice(0, NOTICES.length, ...r.notices);
+      });
+    }
+  } catch(err) {
+    // Any error — try demo data
+    const emp = EMPLOYEES[code];
+    if (!emp) {
+      btn.textContent = 'Login →'; btn.disabled = false;
       showLoginErr('❌ Invalid Employee Code. Please try again.');
       return;
     }
-
-      loggedEmp = res.employee;
-
-      // Fetch history, board, notices in background
-      apiCall('getHistory', { empCode: code }).then(r => {
-        if (r.ok) HISTORY[code] = r.history;
-      });
-      apiCall('getBoard').then(r => {
-        if (r.ok) BOARD.splice(0, BOARD.length, ...r.board);
-      });
-      apiCall('getNotices').then(r => {
-        if (r.ok) NOTICES.splice(0, NOTICES.length, ...r.notices);
-      });
-
-      document.getElementById('hdrName').textContent = loggedEmp.name.split(' ')[0];
-      buildTabs();
-      document.getElementById('loginScreen').classList.remove('on');
-      document.getElementById('appScreen').classList.add('on');
-      switchTab('loan');
-      return;
-    }
-  } else {
-    // Demo mode — use sample data
-    btn.textContent = 'Login →'; btn.disabled = false;
-    const emp = EMPLOYEES[code];
-    if (!emp) { showLoginErr('❌ Invalid Employee Code. Please try again.'); return; }
     loggedEmp = {...emp};
   }
 
+  btn.textContent = 'Login →'; btn.disabled = false;
   document.getElementById('hdrName').textContent = loggedEmp.name.split(' ')[0];
   buildTabs();
   document.getElementById('loginScreen').classList.remove('on');
@@ -637,7 +644,9 @@ function doLogout() {
 }
 
 window.addEventListener('load', () => {
-  document.getElementById('loginScreen').classList.add('on');
+  const ls = document.getElementById('loginScreen');
+  ls.classList.add('on');
+  ls.style.display = 'flex';
 });
 
 // ═══════════════════════════════════════════
