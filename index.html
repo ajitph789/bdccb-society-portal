@@ -25,8 +25,8 @@
 html{scroll-behavior:smooth}
 body{font-family:var(--font);background:var(--bg);color:var(--ink);min-height:100dvh;overflow-x:hidden}
 
-.screen{display:none}
-.screen.on{display:flex;flex-direction:column;min-height:100dvh}
+.screen{display:none!important}
+.screen.on{display:flex!important;flex-direction:column;min-height:100dvh}
 #loginScreen.on{display:flex!important;align-items:center;justify-content:center}
 
 @keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
@@ -554,12 +554,13 @@ async function doLogin() {
   btn.textContent = 'Login →'; btn.disabled = false;
   document.getElementById('hdrName').textContent = loggedEmp.name.split(' ')[0];
   buildTabs();
-  document.getElementById('loginScreen').classList.remove('on');
-  document.getElementById('loginScreen').style.display = 'none';
+  const ls = document.getElementById('loginScreen');
+  ls.classList.remove('on');
+  ls.style.cssText = 'display:none!important';
   const app = document.getElementById('appScreen');
   app.classList.add('on');
-  app.style.display = 'flex';
-  setTimeout(() => { window.scrollTo({top:0,behavior:'instant'}); }, 10);
+  app.style.cssText = 'display:flex!important;flex-direction:column;min-height:100dvh';
+  window.scrollTo(0,0);
   switchTab('profile');
 }
 
@@ -577,9 +578,14 @@ function doLogout() {
 }
 
 window.addEventListener('load', () => {
+  // Hide all screens first
+  document.querySelectorAll('.screen').forEach(s => {
+    s.style.display = 'none';
+  });
+  // Show login screen
   const ls = document.getElementById('loginScreen');
   ls.classList.add('on');
-  ls.style.display = 'flex';
+  ls.style.cssText = 'display:flex!important;align-items:center;justify-content:center;min-height:100dvh';
 });
 
 // ═══════════════════════════════════════════
