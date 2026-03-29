@@ -446,6 +446,25 @@ body{font-family:var(--font);background:var(--bg);color:var(--ink);min-height:10
       </div>
       <button class="login-btn" id="loginBtn" onclick="doLogin()">Login →</button>
       <div class="login-err" id="loginErr">❌ Invalid Employee Code. Please try again.</div>
+
+      <!-- Quick Tool: Gold Loan Calculator -->
+      <div style="margin-top:20px;padding-top:18px;border-top:1px solid #e2e8f0;text-align:center">
+        <div style="font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.1em;margin-bottom:12px">Quick Tools</div>
+        <a href="https://ajitph789.github.io/bdccb-society-portal/Gold_loan_calculator.html"
+           target="_blank"
+           style="display:inline-flex;flex-direction:column;align-items:center;gap:6px;
+                  background:linear-gradient(135deg,#fffbec,#fef3c7);
+                  border:2px solid rgba(201,148,26,.35);border-radius:16px;
+                  padding:14px 28px;text-decoration:none;
+                  box-shadow:0 2px 10px rgba(201,148,26,.15);
+                  transition:transform .18s,box-shadow .18s"
+           onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 18px rgba(201,148,26,.25)'"
+           onmouseout="this.style.transform='none';this.style.boxShadow='0 2px 10px rgba(201,148,26,.15)'">
+          <span style="font-size:28px">🪙</span>
+          <span style="font-size:12px;font-weight:800;color:#92400e;letter-spacing:.02em">Gold Loan Calculator</span>
+          <span style="font-size:10px;color:#b45309;font-weight:600">Tap to open ↗</span>
+        </a>
+      </div>
     </div>
   </div>
 </div>
@@ -644,9 +663,14 @@ function showLoginErr(msg) {
 
 function doLogout() {
   loggedEmp = null; curTab = '';
-  document.getElementById('appScreen').classList.remove('on');
-  document.getElementById('loginScreen').classList.add('on');
+  const app = document.getElementById('appScreen');
+  app.classList.remove('on');
+  app.style.cssText = 'display:none!important';
+  const ls = document.getElementById('loginScreen');
+  ls.classList.add('on');
+  ls.style.cssText = 'display:flex!important;align-items:center;justify-content:center;min-height:100dvh';
   document.getElementById('empCode').value = '';
+  document.getElementById('loginErr').style.display = 'none';
 }
 
 // Screenshot protection
