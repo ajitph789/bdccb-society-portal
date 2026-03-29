@@ -1,0 +1,1108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Gold Loan Management</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:         #F7F4EE;
+  --surface:    #FFFFFF;
+  --surface2:   #FAF8F3;
+  --border:     #E8E0CC;
+  --border-dk:  #D4C89A;
+  --ink:        #1E1A10;
+  --ink-soft:   #4A4228;
+  --ink-mute:   #8A7D5A;
+  --gold:       #C08A20;
+  --gold-lt:    #E0A830;
+  --gold-pale:  #FDF6E0;
+  --gold-rim:   #EACC78;
+  --green:      #1E6E42;
+  --green-bg:   #E8F4EE;
+  --green-rim:  #7EC8A0;
+  --blue:       #1A50A0;
+  --blue-bg:    #E8F0FC;
+  --blue-rim:   #80AAEC;
+  --red:        #B83020;
+  --red-bg:     #FDECEA;
+  --red-rim:    #E8A090;
+  --mono:       'JetBrains Mono', monospace;
+  --font:       'Outfit', sans-serif;
+  --r:          14px;
+  --r-sm:       10px;
+  --r-xs:       7px;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { font-size: 14px; }
+
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--ink);
+  min-height: 100vh;
+  padding-bottom: 80px;
+}
+
+
+
+/* ─── HEADER ─── */
+.app-header {
+  background: linear-gradient(135deg, #1A1600 0%, #2E2600 100%);
+  padding: 16px 18px;
+  display: flex; align-items: center; gap: 14px;
+}
+.hdr-icon {
+  width: 46px; height: 46px; border-radius: 12px; flex-shrink: 0;
+  background: linear-gradient(135deg, var(--gold-lt), var(--gold));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+  box-shadow: 0 3px 10px rgba(200,140,32,0.45);
+}
+.hdr-text h1 { font-size: 20px; font-weight: 700; color: #fff; letter-spacing: -0.3px; }
+.hdr-text p  { font-size: 13px; color: rgba(255,255,255,0.4); margin-top: 2px; }
+
+/* ─── TABS ─── */
+.tab-bar {
+  background: #1A1600;
+  display: flex;
+  padding: 0 18px;
+  border-bottom: 2px solid #2E2600;
+  position: sticky; top: 0; z-index: 200;
+}
+.tab-btn {
+  font-family: var(--font); font-size: 14px; font-weight: 600;
+  color: rgba(255,255,255,0.35);
+  background: none; border: none; border-bottom: 3px solid transparent;
+  padding: 13px 16px 10px;
+  cursor: pointer; transition: all 0.18s; letter-spacing: 0.1px;
+  margin-bottom: -2px;
+}
+.tab-btn.active { color: var(--gold-lt); border-bottom-color: var(--gold); }
+.tab-content { display: none; }
+.tab-content.active { display: block; animation: fadeUp 0.2s ease; }
+@keyframes fadeUp { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:none; } }
+
+/* ─── LAYOUT ─── */
+.container { max-width: 600px; margin: 0 auto; padding: 16px 14px; display: flex; flex-direction: column; gap: 16px; }
+
+/* ─── CARDS ─── */
+.card {
+    font-size: 14px; background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--r); box-shadow: 0 2px 8px rgba(0,0,0,0.06); overflow: hidden; }
+.card-head { padding: 13px 16px; background: var(--surface2); border-bottom: 1.5px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+.card-head-l { display: flex; align-items: center; gap: 9px; }
+.card-icon { font-size: 18px; }
+.card-title { font-size: 14px; font-weight: 700; color: var(--ink); }
+.card-body { padding: 12px; }
+
+/* ─── BADGES ─── */
+.badge {
+  display: inline-flex; align-items: center;
+  font-size: 11px; font-weight: 700; font-family: var(--font);
+  border-radius: 20px; padding: 3px 10px; letter-spacing: 0.2px;
+}
+.b-gold  { background: var(--gold-pale); border: 1px solid var(--gold-rim); color: var(--gold); }
+.b-green { background: var(--green-bg);  border: 1px solid var(--green-rim); color: var(--green); }
+.b-blue  { background: var(--blue-bg);   border: 1px solid var(--blue-rim);  color: var(--blue); }
+.b-red   { background: var(--red-bg);    border: 1px solid var(--red-rim);   color: var(--red); }
+
+/* ─── FORM ─── */
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.span2 { grid-column: 1/-1; }
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field label { font-size: 12px; font-weight: 600; color: var(--ink-mute); text-transform: uppercase; letter-spacing: 0.5px; }
+
+input, select {
+  font-family: var(--mono);
+  font-size: 14px;
+  padding: 11px 13px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--r-sm);
+  background: var(--surface2);
+  color: var(--ink);
+  outline: none;
+  width: 100%;
+  -webkit-appearance: none;
+  transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+}
+input:focus, select:focus {
+  border-color: var(--gold);
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(192,138,32,0.12);
+}
+input[readonly] { background: var(--surface2); color: var(--ink-mute); cursor: default; border-color: var(--border); }
+input.auto-v  { background: var(--gold-pale); border-color: var(--gold-rim); color: #7A5010; font-weight: 600; }
+input.manual-v { background: var(--blue-bg); border-color: var(--blue-rim); color: var(--blue); font-weight: 600; }
+
+/* ─── ITEMS TABLE ─── */
+.table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+table { width: 100%; border-collapse: collapse; }
+thead tr { background: var(--surface2); }
+th {
+  padding: 10px 6px; text-align: left;
+  font-size: 11px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.5px; color: var(--ink-mute);
+  border-bottom: 2px solid var(--border); white-space: nowrap;
+}
+td { padding: 7px 5px; border-bottom: 1px solid #F0EAD8; vertical-align: middle; }
+td input, td select { font-size: 15px; padding: 9px 8px; border-radius: var(--r-xs); }
+td input.wt-input { font-size: 17px; padding: 10px 8px; font-weight: 700; min-width: 90px; border-color: var(--green-rim); background: #F2FBF6; }
+
+/* wider weight columns */
+.col-no   { width: 26px; text-align: center; color: var(--ink-mute); font-size: 14px; }
+.col-type { min-width: 140px; }
+.col-carat{ width: 82px; }
+.col-wt   { width: 82px; }   /* bigger for gross/net */
+.col-val  { width: 96px; }
+.col-del  { width: 34px; text-align: center; }
+
+.del-btn { background: none; border: none; color: #D4C49A; font-size: 17px; cursor: pointer; padding: 4px 6px; border-radius: 6px; transition: all 0.15s; }
+.del-btn:hover { color: var(--red); background: var(--red-bg); }
+
+.tfoot-row td { font-family: var(--mono); font-size: 13px; font-weight: 600; color: var(--ink-soft); border-top: 2px solid var(--border); border-bottom: none; padding-top: 11px; background: var(--surface2); }
+
+.add-btn {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  font-family: var(--font); font-size: 15px; font-weight: 700;
+  color: var(--gold); background: var(--gold-pale);
+  border: 2px dashed var(--gold-rim); border-radius: var(--r-sm);
+  padding: 12px; cursor: pointer; width: 100%; margin-top: 12px;
+  transition: all 0.15s;
+}
+.add-btn:hover { background: #F8EDCA; border-color: var(--gold); }
+.add-btn:active { transform: scale(0.98); }
+
+/* ─── LOAN AMOUNT BAR ─── */
+.loan-bar {
+  display: flex; justify-content: space-between; align-items: center;
+  background: linear-gradient(90deg, var(--gold-pale), #FEFAEE);
+  border: 1.5px solid var(--gold-rim); border-radius: var(--r-sm);
+  padding: 12px 16px; margin-bottom: 16px;
+}
+.loan-bar .lb-l { font-size: 13px; font-weight: 700; color: var(--gold); text-transform: uppercase; letter-spacing: 0.4px; }
+.loan-bar .lb-v { font-family: var(--mono); font-size: 20px; font-weight: 700; color: var(--ink); }
+
+/* ─── CHARGES ─── */
+.charge-block {
+  font-size: 13px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--r-sm);
+  padding: 13px 14px;
+  margin-bottom: 10px;
+  background: var(--surface2);
+  transition: border-color 0.2s, background 0.2s;
+}
+.charge-block.is-auto   { border-color: var(--gold-rim); background: var(--gold-pale); }
+.charge-block.is-manual { border-color: var(--blue-rim); background: var(--blue-bg); }
+.charge-block:last-child { margin-bottom: 0; }
+
+.cb-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; gap: 8px; }
+.cb-name { font-size: 15px; font-weight: 700; color: var(--ink); }
+.cb-basis { font-size: 12px; font-family: var(--mono); color: var(--ink-mute); margin-top: 3px; }
+.cb-badges { display: flex; gap: 5px; align-items: center; flex-shrink: 0; }
+
+.cb-row { display: flex; align-items: center; gap: 10px; }
+.inp-wrap { position: relative; flex: 1; }
+.inp-wrap .sym { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); font-family: var(--mono); font-size: 15px; color: var(--ink-mute); pointer-events: none; }
+.inp-wrap input { padding-left: 26px; }
+
+.rst-btn {
+  font-family: var(--font); font-size: 12px; font-weight: 600;
+  color: var(--ink-mute); background: var(--surface); border: 1.5px solid var(--border);
+  border-radius: 20px; padding: 6px 12px; cursor: pointer; white-space: nowrap;
+  transition: all 0.15s;
+}
+.rst-btn:hover { background: var(--gold-pale); border-color: var(--gold-rim); color: var(--gold); }
+
+/* ─── CHARGES TOTAL ─── */
+.charges-total {
+  display: flex; justify-content: space-between; align-items: center;
+  background: linear-gradient(90deg, #1A1600, #2E2600);
+  border-radius: var(--r-sm); padding: 14px 16px; margin-top: 14px;
+}
+.charges-total .ctl { font-size: 14px; font-weight: 600; color: rgba(255,255,255,0.55); }
+.charges-total .cta { font-family: var(--mono); font-size: 20px; font-weight: 700; color: var(--gold-lt); }
+
+/* ─── RENEWAL SECTION ─── */
+.renewal-card { border-color: #C8E0F0; }
+.renewal-card .card-head { background: #EAF4FC; border-bottom-color: #C8E0F0; }
+.renewal-total-bar {
+  display: flex; justify-content: space-between; align-items: center;
+  background: var(--blue-bg); border: 1.5px solid var(--blue-rim);
+  border-radius: var(--r-sm); padding: 12px 16px; margin-top: 14px;
+}
+.renewal-total-bar .rtl { font-size: 13px; font-weight: 700; color: var(--blue); text-transform: uppercase; }
+.renewal-total-bar .rtv { font-family: var(--mono); font-size: 20px; font-weight: 700; color: var(--ink); }
+
+/* ─── SUMMARY ─── */
+.summary-card {
+  background: linear-gradient(145deg, #1A1600 0%, #2A2200 60%, #1A1600 100%);
+  border: none; border-radius: var(--r);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+  position: relative; overflow: hidden;
+}
+.summary-card::before {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(ellipse 70% 50% at 80% 10%, rgba(200,150,32,0.18), transparent);
+  pointer-events: none;
+}
+.sum-head { padding: 14px 18px 12px; border-bottom: 1px solid rgba(200,150,32,0.2); display: flex; align-items: center; justify-content: space-between; }
+.sum-head h2 { font-size: 18px; font-weight: 700; color: #fff; }
+.sum-body { padding: 16px 18px; position: relative; }
+.sum-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; }
+.sum-row .sl { font-size: 14px; color: rgba(255,255,255,0.5); }
+.sum-row .sv { font-family: var(--mono); font-size: 15px; color: rgba(255,255,255,0.85); font-weight: 500; }
+.sum-div { border: none; border-top: 1px solid rgba(255,255,255,0.08); margin: 7px 0; }
+.sum-total { display: flex; justify-content: space-between; align-items: center; padding-top: 12px; border-top: 1px solid rgba(200,150,32,0.35); margin-top: 8px; }
+.sum-total .stl { font-size: 15px; font-weight: 600; color: rgba(255,255,255,0.6); }
+.sum-total .sta { font-family: var(--mono); font-size: 30px; font-weight: 700; color: var(--gold-lt); letter-spacing: -0.5px; }
+.stcur { font-size: 18px; margin-right: 2px; }
+
+.big-reset {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  font-family: var(--font); font-size: 14px; font-weight: 700;
+  color: var(--ink-mute); background: var(--surface);
+  border: 2px solid var(--border); border-radius: var(--r-sm);
+  padding: 13px; cursor: pointer; width: 100%; transition: all 0.15s;
+}
+.big-reset:hover { background: var(--red-bg); border-color: var(--red-rim); color: var(--red); }
+
+/* ─── DAYS TAB ─── */
+.days-hero { background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--r); overflow: hidden; }
+.days-head { background: linear-gradient(135deg, #1A1600, #2E2600); padding: 20px 18px; }
+.days-head h3 { font-size: 20px; font-weight: 700; color: #fff; }
+.days-chip { display: inline-block; margin-top: 8px; font-size: 12px; font-family: var(--mono); background: rgba(200,150,32,0.2); border: 1px solid rgba(200,150,32,0.4); color: var(--gold-lt); border-radius: 20px; padding: 4px 12px; }
+.days-body-pad { padding: 12px; display: flex; flex-direction: column; gap: 14px; }
+.grid2d { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.set-today {
+  font-family: var(--font); font-size: 14px; font-weight: 700;
+  color: var(--gold); background: var(--gold-pale);
+  border: 1.5px solid var(--gold-rim); border-radius: 20px;
+  padding: 10px 22px; cursor: pointer; display: block; margin: 0 auto;
+  transition: all 0.15s;
+}
+.set-today:hover { background: #F8EDCA; }
+.grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+.day-box { border-radius: var(--r-sm); padding: 18px 8px; display: flex; flex-direction: column; align-items: center; gap: 5px; border: 1.5px solid var(--border); background: var(--surface2); }
+.day-box .dv { font-family: var(--mono); font-size: 28px; font-weight: 700; color: var(--ink); }
+.day-box .dl { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--ink-mute); }
+.day-box.hi { background: linear-gradient(135deg, var(--gold), var(--gold-lt)); border-color: #A07010; }
+.day-box.hi .dv { color: #fff; }
+.day-box.hi .dl { color: rgba(255,255,255,0.75); }
+.grid2t { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.info-tile { background: var(--gold-pale); border: 1.5px solid var(--gold-rim); border-radius: var(--r-sm); padding: 14px; }
+.info-tile .il { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--gold); }
+.info-tile .iv { font-family: var(--mono); font-size: 18px; font-weight: 700; color: var(--ink); margin-top: 5px; }
+
+/* separator */
+.sep { display: flex; align-items: center; gap: 10px; margin: 6px 0; }
+.sep span { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--ink-mute); white-space: nowrap; }
+.sep::before, .sep::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+</style>
+</head>
+<body>
+
+
+
+<!-- HEADER -->
+<div class="app-header">
+  <div class="hdr-icon">🪙</div>
+  <div class="hdr-text">
+    <h1>Gold Loan Management</h1>
+    
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="switchTab('calc',this)">⚖ Calculator</button>
+  <button class="tab-btn" onclick="switchTab('days',this)">📅 Days</button>
+  <button class="tab-btn" onclick="switchTab('denom',this)">💵 Cash</button>
+</div>
+
+<!-- ══════════ CALCULATOR TAB ══════════ -->
+<div class="tab-content active" id="tab-calc">
+<div class="container">
+
+  <!-- Gold Rate -->
+  <div class="card" style="border:2px solid var(--gold-rim);box-shadow:0 4px 16px rgba(192,138,32,0.15);">
+    <div class="card-head" style="background:linear-gradient(135deg,#7A4F00,#B8860B);border-bottom:2px solid var(--gold-rim);padding:14px 16px;">
+      <div class="card-head-l">
+        <span style="font-size:22px">🏅</span>
+        <div>
+          <div style="font-size:16px;font-weight:800;color:#fff;letter-spacing:0.2px;">Gold Rate</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.6);margin-top:1px;">Today's rate per gram</div>
+        </div>
+      </div>
+      <span class="badge" style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);color:#fff;font-size:12px;">Per Gram ₹</span>
+    </div>
+    <div class="card-body" style="background:linear-gradient(180deg,#FFFDF5,#fff);padding:16px;">
+      <div class="grid2">
+        <div class="field">
+          <label style="color:var(--gold);font-size:11px;">Pure Gold Rate</label>
+          <input type="number" id="pureRate" value="11468" oninput="calculate()" style="font-size:18px;font-weight:700;border-color:var(--gold-rim);background:#FFFBEE;">
+        </div>
+        <div class="field">
+          <label style="color:var(--ink-mute);font-size:11px;">NON Pure Rate</label>
+          <input type="number" id="nonPureRate" value="10668" oninput="calculate()" style="font-size:18px;font-weight:700;">
+        </div>
+        <div class="field">
+          <label style="color:var(--gold);font-size:11px;">Pure Loan / g</label>
+          <input type="number" id="pureLoanRate" value="8601" oninput="calculate()" style="font-size:18px;font-weight:700;border-color:var(--gold-rim);background:#FFFBEE;">
+        </div>
+        <div class="field">
+          <label style="color:var(--ink-mute);font-size:11px;">NON Pure Loan / g</label>
+          <input type="number" id="nonPureLoanRate" value="8000" oninput="calculate()" style="font-size:18px;font-weight:700;">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Gold Details -->
+  <div class="card" style="border:2px solid var(--green-rim);box-shadow:0 4px 16px rgba(30,110,66,0.12);">
+    <div class="card-head" style="background:linear-gradient(135deg,#0A4A28,#1E6E42);border-bottom:2px solid var(--green-rim);padding:14px 16px;">
+      <div class="card-head-l">
+        <span style="font-size:22px">💍</span>
+        <div>
+          <div style="font-size:16px;font-weight:800;color:#fff;">Gold Details</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.6);margin-top:1px;">Ornament wise entry</div>
+        </div>
+      </div>
+      <span class="badge" id="item-badge" style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);color:#fff;">1 item</span>
+    </div>
+    <div class="card-body" style="padding:0">
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr style="background:linear-gradient(90deg,#EDF8F2,#fff);">
+              <th class="col-no" style="color:var(--green)">#</th>
+              <th class="col-carat" style="color:var(--green)">Carat</th>
+              <th style="min-width:100px;color:var(--green)">Gross Wt</th>
+              <th style="min-width:100px;color:var(--green)">Net Wt</th>
+              <th class="col-val" style="color:var(--green)">Approx ₹</th>
+              <th class="col-val" style="color:var(--green)">Loan ₹</th>
+              <th class="col-del"></th>
+            </tr>
+          </thead>
+          <tbody id="itemsBody"></tbody>
+          <tfoot>
+            <tr style="background:linear-gradient(90deg,#EDF8F2,#fff);">
+              <td style="font-family:var(--mono);font-size:13px;font-weight:800;color:var(--green);border-top:2px solid var(--green-rim);padding:11px 5px;" colspan="2">TOTAL</td>
+              <td style="font-family:var(--mono);font-size:15px;font-weight:700;color:var(--ink);border-top:2px solid var(--green-rim);padding:11px 5px;" id="totGross">—</td>
+              <td style="font-family:var(--mono);font-size:15px;font-weight:700;color:var(--ink);border-top:2px solid var(--green-rim);padding:11px 5px;" id="totNet">—</td>
+              <td style="font-family:var(--mono);font-size:14px;font-weight:700;color:var(--gold);border-top:2px solid var(--green-rim);padding:11px 5px;" id="totVal">—</td>
+              <td style="font-family:var(--mono);font-size:14px;font-weight:700;color:var(--green);border-top:2px solid var(--green-rim);padding:11px 5px;" id="totLoan">—</td>
+              <td style="border-top:2px solid var(--green-rim);"></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+      <div style="padding:8px 14px 14px">
+        <button class="add-btn" onclick="addRow()" style="color:var(--green);background:var(--green-bg);border-color:var(--green-rim);">＋ Add Item</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loan & Charges -->
+  <div class="card" style="border:2px solid var(--blue-rim);box-shadow:0 4px 16px rgba(26,80,160,0.10);">
+    <div class="card-head" style="background:linear-gradient(135deg,#0B3060,#1A50A0);border-bottom:2px solid var(--blue-rim);padding:14px 16px;">
+      <div class="card-head-l">
+        <span style="font-size:22px">🧾</span>
+        <div>
+          <div style="font-size:16px;font-weight:800;color:#fff;">Charges</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.6);margin-top:1px;">Auto-calculated · Min ₹218</div>
+        </div>
+      </div>
+      <span class="badge" style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);color:#fff;">Min ₹218</span>
+    </div>
+    <div class="card-body" style="background:linear-gradient(180deg,#F0F5FF,#fff);padding:16px;">
+
+      <!-- Effective loan bar -->
+      <div style="display:flex;justify-content:space-between;align-items:center;background:linear-gradient(90deg,#E8F0FC,#F0F5FF);border:1.5px solid var(--blue-rim);border-radius:var(--r-sm);padding:13px 16px;margin-bottom:14px;">
+        <span style="font-size:13px;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:0.4px;">Loan Amount</span>
+        <span style="font-family:var(--mono);font-size:22px;font-weight:800;color:var(--ink);">₹<span id="eff-loan">0.00</span></span>
+      </div>
+
+      <div class="field span2" style="margin-bottom:14px">
+        <label>Manual Loan Override</label>
+        <input type="number" id="loanAmount" placeholder="Leave blank — auto from items" oninput="calculate()">
+      </div>
+
+      <div class="sep"><span>Auto Charges</span></div>
+
+      <!-- Proc -->
+      <div class="charge-block is-auto" id="ci-proc">
+        <div class="cb-top">
+          <div><div class="cb-name">Processing Fee</div><div class="cb-basis" id="proc-basis">Loan × 0.3% · Min ₹100</div></div>
+          <div class="cb-badges">
+            <span class="badge b-gold" id="proc-st">AUTO</span>
+            <span class="badge b-red" id="proc-min" style="display:none">MIN</span>
+          </div>
+        </div>
+        <div class="cb-row">
+          <div class="inp-wrap"><span class="sym">₹</span><input type="number" id="c-proc" class="auto-v" oninput="onEdit('proc')" step="0.01"></div>
+          <button class="rst-btn" id="proc-rst" style="display:none" onclick="resetCharge('proc')">↺ Reset</button>
+        </div>
+      </div>
+
+      <!-- GVC -->
+      <div class="charge-block is-auto" id="ci-gvc">
+        <div class="cb-top">
+          <div><div class="cb-name">Gold Valuator Charge</div><div class="cb-basis" id="gvc-basis">Loan × 0.2% · Min ₹100 · Max ₹500</div></div>
+          <div class="cb-badges">
+            <span class="badge b-gold" id="gvc-st">AUTO</span>
+            <span class="badge b-red"   id="gvc-min" style="display:none">MIN</span>
+            <span class="badge b-green" id="gvc-max" style="display:none">MAX</span>
+          </div>
+        </div>
+        <div class="cb-row">
+          <div class="inp-wrap"><span class="sym">₹</span><input type="number" id="c-gvc" class="auto-v" oninput="onEdit('gvc')" step="0.01"></div>
+          <button class="rst-btn" id="gvc-rst" style="display:none" onclick="resetCharge('gvc')">↺ Reset</button>
+        </div>
+      </div>
+
+      <!-- SGST -->
+      <div class="charge-block is-auto" id="ci-sgst">
+        <div class="cb-top">
+          <div><div class="cb-name">SGST <span style="font-weight:400;color:var(--ink-mute);font-size:14px">(9% of Proc)</span></div><div class="cb-basis" id="sgst-basis"></div></div>
+          <div class="cb-badges"><span class="badge b-gold" id="sgst-st">AUTO</span></div>
+        </div>
+        <div class="cb-row">
+          <div class="inp-wrap"><span class="sym">₹</span><input type="number" id="c-sgst" class="auto-v" oninput="onEdit('sgst')" step="0.01"></div>
+          <button class="rst-btn" id="sgst-rst" style="display:none" onclick="resetCharge('sgst')">↺ Reset</button>
+        </div>
+      </div>
+
+      <!-- CGST -->
+      <div class="charge-block is-auto" id="ci-cgst">
+        <div class="cb-top">
+          <div><div class="cb-name">CGST <span style="font-weight:400;color:var(--ink-mute);font-size:14px">(9% of Proc)</span></div><div class="cb-basis" id="cgst-basis"></div></div>
+          <div class="cb-badges"><span class="badge b-gold" id="cgst-st">AUTO</span></div>
+        </div>
+        <div class="cb-row">
+          <div class="inp-wrap"><span class="sym">₹</span><input type="number" id="c-cgst" class="auto-v" oninput="onEdit('cgst')" step="0.01"></div>
+          <button class="rst-btn" id="cgst-rst" style="display:none" onclick="resetCharge('cgst')">↺ Reset</button>
+        </div>
+      </div>
+
+      <div class="charges-total" style="background:linear-gradient(135deg,#0B3060,#1A50A0);margin-top:14px;">
+        <span class="ctl">Total Charges</span>
+        <span class="cta" style="color:#90C8FF;">₹<span id="total-charges">—</span></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Renewal / Old Loan -->
+  <div class="card renewal-card">
+    <div class="card-head">
+      <div class="card-head-l"><span class="card-icon">🔄</span><span class="card-title">Loan Renewal Details</span></div>
+      <span class="badge b-blue">Optional</span>
+    </div>
+    <div class="card-body">
+      <div class="grid2" style="margin-bottom:12px">
+        <div class="field">
+          <label>Loan Date</label>
+          <input type="date" id="r-loan-date" oninput="calcRenewal()">
+        </div>
+        <div class="field">
+          <label>Renewal Date</label>
+          <input type="date" id="r-renew-date" oninput="calcRenewal()">
+        </div>
+      </div>
+      <div class="grid2" style="margin-bottom:12px">
+        <div class="field">
+          <label>Old Principal ₹</label>
+          <input type="number" id="r-principal" placeholder="0" oninput="calcRenewal()">
+        </div>
+        <div class="field">
+          <label>Interest Rate % / yr</label>
+          <input type="number" id="r-rate" value="10" placeholder="10" oninput="calcRenewal()">
+        </div>
+      </div>
+      <div class="grid2">
+        <div class="field">
+          <label>Days</label>
+          <input type="number" id="r-days" readonly placeholder="—">
+        </div>
+        <div class="field">
+          <label>Interest Amount ₹</label>
+          <input type="number" id="r-interest" readonly placeholder="—">
+        </div>
+      </div>
+      <div class="renewal-total-bar">
+        <span class="rtl">Total Renewal (Principal + Interest)</span>
+        <span class="rtv">₹<span id="r-total">0.00</span></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Summary -->
+  <div class="card" style="border:none;border-radius:var(--r);box-shadow:0 8px 32px rgba(0,0,0,0.18);overflow:hidden;">
+    <!-- Header -->
+    <div style="background:linear-gradient(135deg,#7A4F00,#B8860B,#1E6E42);padding:16px 18px 14px;display:flex;align-items:center;justify-content:space-between;">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span style="font-size:24px;">📋</span>
+        <div>
+          <div style="font-size:18px;font-weight:800;color:#fff;">Summary</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.6);margin-top:1px;">Complete Loan Breakdown</div>
+        </div>
+      </div>
+      <span style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);color:#fff;font-size:11px;font-weight:700;border-radius:20px;padding:4px 12px;">Net Payable</span>
+    </div>
+
+    <!-- Valuation section -->
+    <div style="background:linear-gradient(135deg,#FFFDF0,#FDF8E0);padding:14px 18px;border-bottom:2px solid var(--gold-rim);">
+      <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:0.8px;color:var(--gold);margin-bottom:8px;">📊 Valuation</div>
+      <div class="sum-row" style="padding:4px 0;">
+        <span class="sl" style="color:var(--ink-soft);font-size:14px;">Total Approx Value</span>
+        <span class="sv" style="color:var(--gold);font-size:15px;font-weight:700;" id="s-approx">—</span>
+      </div>
+      <div class="sum-row" style="padding:4px 0;">
+        <span class="sl" style="color:var(--ink-soft);font-size:14px;">New Loan Amount</span>
+        <span class="sv" style="color:var(--ink);font-size:16px;font-weight:800;" id="s-loan">—</span>
+      </div>
+    </div>
+
+    <!-- Charges section -->
+    <div style="background:linear-gradient(135deg,#EEF4FF,#F0F5FF);padding:14px 18px;border-bottom:2px solid var(--blue-rim);">
+      <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:0.8px;color:var(--blue);margin-bottom:8px;">🧾 Charges</div>
+      <div class="sum-row" style="padding:3px 0;"><span class="sl" style="color:var(--ink-mute);font-size:13px;">Processing Fee</span><span class="sv" style="color:var(--ink-soft);font-size:14px;" id="s-proc">—</span></div>
+      <div class="sum-row" style="padding:3px 0;"><span class="sl" style="color:var(--ink-mute);font-size:13px;">Gold Valuator Charge</span><span class="sv" style="color:var(--ink-soft);font-size:14px;" id="s-gvc">—</span></div>
+      <div class="sum-row" style="padding:3px 0;"><span class="sl" style="color:var(--ink-mute);font-size:13px;">SGST</span><span class="sv" style="color:var(--ink-soft);font-size:14px;" id="s-sgst">—</span></div>
+      <div class="sum-row" style="padding:3px 0;"><span class="sl" style="color:var(--ink-mute);font-size:13px;">CGST</span><span class="sv" style="color:var(--ink-soft);font-size:14px;" id="s-cgst">—</span></div>
+      <div style="border-top:1px dashed var(--blue-rim);margin:8px 0;"></div>
+      <div class="sum-row" style="padding:3px 0;"><span class="sl" style="color:var(--blue);font-size:14px;font-weight:700;">Total Charges</span><span class="sv" style="color:var(--blue);font-size:15px;font-weight:700;" id="s-charges">—</span></div>
+    </div>
+
+    <!-- Renewal section -->
+    <div style="background:linear-gradient(135deg,#EEF8F4,#F0FAF6);padding:14px 18px;border-bottom:2px solid var(--green-rim);">
+      <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:0.8px;color:var(--green);margin-bottom:8px;">🔄 Renewal</div>
+      <div class="sum-row" style="padding:3px 0;"><span class="sl" style="color:var(--ink-mute);font-size:13px;">Old Principal</span><span class="sv" style="color:var(--ink-soft);font-size:14px;" id="s-principal">—</span></div>
+      <div class="sum-row" style="padding:3px 0;"><span class="sl" style="color:var(--ink-mute);font-size:13px;">Interest on Old Loan</span><span class="sv" style="color:var(--ink-soft);font-size:14px;" id="s-rint">—</span></div>
+      <div style="border-top:1px dashed var(--green-rim);margin:8px 0;"></div>
+      <div class="sum-row" style="padding:3px 0;"><span class="sl" style="color:var(--green);font-size:14px;font-weight:700;">Total Renewal</span><span class="sv" style="color:var(--green);font-size:15px;font-weight:700;" id="s-renewal">—</span></div>
+    </div>
+
+    <!-- Net Payable -->
+    <div style="background:linear-gradient(135deg,#1A1600,#2A2200);padding:18px 20px;display:flex;justify-content:space-between;align-items:center;">
+      <div>
+        <div style="font-size:12px;font-weight:700;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:0.5px;">Net Payable</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.3);margin-top:2px;">Loan − Charges + Renewal</div>
+      </div>
+      <div style="font-family:var(--mono);font-size:32px;font-weight:800;color:var(--gold-lt);letter-spacing:-0.5px;">₹<span id="s-total">—</span></div>
+    </div>
+  </div>
+
+  <button class="big-reset" onclick="resetAll()">↺ &nbsp;Reset Everything</button>
+</div>
+</div>
+
+<!-- ══════════ DAYS TAB ══════════ -->
+<div class="tab-content" id="tab-days">
+<div class="container">
+  <div class="days-hero">
+    <div class="days-head">
+      <h3>Days Calculator</h3>
+      <div class="days-chip" id="todayChip"></div>
+    </div>
+    <div class="days-body-pad">
+      <div class="grid2d">
+        <div class="field"><label>From Date</label><input type="date" id="fromDate" oninput="calcDays()"></div>
+        <div class="field"><label>To Date</label><input type="date" id="toDate" oninput="calcDays()"></div>
+      </div>
+      <button class="set-today" onclick="setToday()">📅 &nbsp;Set Today as To Date</button>
+      <div class="grid3">
+        <div class="day-box hi"><span class="dv" id="d-days">—</span><span class="dl">Days</span></div>
+        <div class="day-box"><span class="dv" id="d-months">—</span><span class="dl">Months</span></div>
+        <div class="day-box"><span class="dv" id="d-years">—</span><span class="dl">Years</span></div>
+      </div>
+      <div class="grid2t">
+        <div class="info-tile"><div class="il">Exact Months</div><div class="iv" id="d-emonths">—</div></div>
+        <div class="info-tile"><div class="il">Exact Years</div><div class="iv" id="d-eyears">—</div></div>
+        <div class="info-tile"><div class="il">Weeks</div><div class="iv" id="d-weeks">—</div></div>
+        <div class="info-tile"><div class="il">Interest Months ↑</div><div class="iv" id="d-imonths">—</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+const ORNAMENTS = [];
+const CARATS = ["18K","20K","22K","24K","NON Pure"];
+let rowCount = 0;
+const MO = { proc:false, gvc:false, sgst:false, cgst:false };
+
+// ── TABS ──
+function switchTab(t,btn){
+  document.querySelectorAll('.tab-content').forEach(e=>e.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(e=>e.classList.remove('active'));
+  document.getElementById('tab-'+t).classList.add('active');
+  btn.classList.add('active');
+}
+
+// ── HELPERS ──
+function r2(n){ return Math.round(n*100)/100; }
+function fmt(n){
+  if(isNaN(n)||n===null) return '—';
+  return n.toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});
+}
+
+
+
+// ── CHARGES FORMULA ──
+// proc = max(100, loan*0.003)
+// gvc  = clamp(100, loan*0.002, 500)
+// sgst = proc*0.09 ; cgst = proc*0.09
+function autoC(loan){
+  const pRaw = r2(loan*0.003);
+  const gRaw = r2(loan*0.002);
+  const proc = Math.max(100, pRaw);
+  const gvc  = Math.min(500, Math.max(100, gRaw));
+  const sgst = r2(proc*0.09);
+  const cgst = r2(proc*0.09);
+  return { proc, gvc, sgst, cgst,
+    procMin: pRaw<100, gvcMin: gRaw<100, gvcMax: gRaw>=500,
+    procB: pRaw<100 ? 'Minimum ₹100 applied' : `₹${fmt(loan)} × 0.3% = ₹${fmt(pRaw)}`,
+    gvcB:  gRaw>=500? 'Maximum ₹500 applied' : gRaw<100 ? 'Minimum ₹100 applied' : `₹${fmt(loan)} × 0.2% = ₹${fmt(gRaw)}`
+  };
+}
+
+function setChargeUI(key, isManual){
+  const ci=document.getElementById('ci-'+key);
+  const inp=document.getElementById('c-'+key);
+  const st=document.getElementById(key+'-st');
+  const rb=document.getElementById(key+'-rst');
+  if(isManual){
+    ci.className='charge-block is-manual'; inp.className='manual-v';
+    st.className='badge b-blue'; st.textContent='MANUAL';
+    if(rb) rb.style.display='inline-block';
+  } else {
+    ci.className='charge-block is-auto'; inp.className='auto-v';
+    st.className='badge b-gold'; st.textContent='AUTO';
+    if(rb) rb.style.display='none';
+  }
+}
+function onEdit(k){ MO[k]=true; setChargeUI(k,true); updateTotals(); }
+function resetCharge(k){ MO[k]=false; setChargeUI(k,false); calculate(); }
+
+// ── ROW HELPERS ──
+function ornOpts(sel){ return ORNAMENTS.map(o=>`<option${o===sel?' selected':''}>${o}</option>`).join(''); }
+function carOpts(sel){ return CARATS.map(c=>`<option${c===sel?' selected':''}>${c}</option>`).join(''); }
+
+function addRow(orn='',car='22K',gw='',nw=''){
+  rowCount++;
+  const body=document.getElementById('itemsBody');
+  const idx=body.children.length+1;
+  const tr=document.createElement('tr');
+  tr.dataset.id=rowCount;
+  tr.innerHTML=`
+    <td class="col-no" style="font-size:14px;font-weight:700;color:var(--green);">${idx}</td>
+    <td class="col-carat"><select onchange="calcRow(this)">${carOpts(car)}</select></td>
+    <td style="min-width:100px;"><input type="number" placeholder="0.00" value="${gw}" step="0.01" oninput="calcRow(this)" class="wt-input"></td>
+    <td style="min-width:100px;"><input type="number" placeholder="0.00" value="${nw}" step="0.01" oninput="calcRow(this)" class="wt-input"></td>
+    <td class="col-val"><input type="number" readonly id="approx_${rowCount}" tabindex="-1" style="font-size:13px;color:var(--gold);font-weight:600;"></td>
+    <td class="col-val"><input type="number" readonly id="lamt_${rowCount}" tabindex="-1" style="font-size:13px;color:var(--green);font-weight:600;"></td>
+    <td class="col-del"><button class="del-btn" onclick="delRow(this)">✕</button></td>
+  `;
+  body.appendChild(tr);
+  calcRow(tr.querySelector('select'));
+}
+function delRow(btn){
+  btn.closest('tr').remove();
+  document.querySelectorAll('#itemsBody tr').forEach((tr,i)=>tr.querySelector('.col-no').textContent=i+1);
+  calculate();
+}
+function calcRow(el){
+  const tr=el.closest('tr');
+  const id=tr.dataset.id;
+  const car = tr.querySelector('select').value;
+  const inp=tr.querySelectorAll('input[type=number]');
+  const nw=parseFloat(inp[1].value)||0;
+  const pure=car!=='NON Pure';
+  const rate=pure?(parseFloat(document.getElementById('pureRate').value)||0):(parseFloat(document.getElementById('nonPureRate').value)||0);
+  const lr  =pure?(parseFloat(document.getElementById('pureLoanRate').value)||0):(parseFloat(document.getElementById('nonPureLoanRate').value)||0);
+  document.getElementById(`approx_${id}`).value=(nw*rate).toFixed(2);
+  document.getElementById(`lamt_${id}`).value  =(nw*lr).toFixed(2);
+  calculate();
+}
+
+// ── MAIN CALCULATE ──
+function calculate(){
+  let tG=0,tN=0,tA=0,tL=0;
+  document.querySelectorAll('#itemsBody tr').forEach(tr=>{
+    const id=tr.dataset.id;
+    const inp=tr.querySelectorAll('input[type=number]');
+    tG+=parseFloat(inp[0].value)||0;
+    tN+=parseFloat(inp[1].value)||0;
+    tA+=parseFloat(document.getElementById(`approx_${id}`)?.value)||0;
+    tL+=parseFloat(document.getElementById(`lamt_${id}`)?.value) ||0;
+  });
+  document.getElementById('totGross').textContent=tG.toFixed(2);
+  document.getElementById('totNet').textContent  =tN.toFixed(2);
+  document.getElementById('totVal').textContent  =fmt(tA);
+  document.getElementById('totLoan').textContent =fmt(tL);
+  const cnt=document.querySelectorAll('#itemsBody tr').length;
+  document.getElementById('item-badge').textContent=cnt+(cnt===1?' item':' items');
+
+  const man=document.getElementById('loanAmount').value;
+  const loan=man!==''?(parseFloat(man)||0):tL;
+  document.getElementById('eff-loan').textContent=fmt(loan);
+
+  const ac=autoC(loan);
+  ['proc','gvc','sgst','cgst'].forEach(k=>{
+    if(!MO[k]){ document.getElementById('c-'+k).value=ac[k].toFixed(2); setChargeUI(k,false); }
+  });
+  document.getElementById('proc-basis').textContent=ac.procB;
+  document.getElementById('gvc-basis').textContent =ac.gvcB;
+  document.getElementById('sgst-basis').textContent=`Proc ₹${fmt(parseFloat(document.getElementById('c-proc').value)||0)} × 9%`;
+  document.getElementById('cgst-basis').textContent=`Proc ₹${fmt(parseFloat(document.getElementById('c-proc').value)||0)} × 9%`;
+  document.getElementById('proc-min').style.display=ac.procMin?'inline-flex':'none';
+  document.getElementById('gvc-min').style.display =ac.gvcMin ?'inline-flex':'none';
+  document.getElementById('gvc-max').style.display =ac.gvcMax ?'inline-flex':'none';
+
+  updateTotals(loan, tA);
+}
+
+function updateTotals(loan, tA){
+  if(loan===undefined){
+    let tL=0;
+    document.querySelectorAll('#itemsBody tr').forEach(tr=>{ tL+=parseFloat(document.getElementById(`lamt_${tr.dataset.id}`)?.value)||0; });
+    const man=document.getElementById('loanAmount').value;
+    loan=man!==''?(parseFloat(man)||0):tL;
+  }
+  const proc=parseFloat(document.getElementById('c-proc').value)||0;
+  const gvc =parseFloat(document.getElementById('c-gvc').value) ||0;
+  const sgst=parseFloat(document.getElementById('c-sgst').value)||0;
+  const cgst=parseFloat(document.getElementById('c-cgst').value)||0;
+  const charges=r2(proc+gvc+sgst+cgst);
+
+  const principal=parseFloat(document.getElementById('r-principal').value)||0;
+  const rInt     =parseFloat(document.getElementById('r-interest').value) ||0;
+  const renewal  =r2(principal+rInt);
+
+  // Net = NewLoan - Charges + Renewal(Principal+Interest)
+  let net = 0;
+  if(renewal > 0){
+    net = r2(loan - charges - renewal);
+  } else {
+    net = r2(loan - charges);
+  }
+
+  const netEl = document.getElementById('s-total');
+  netEl.textContent = fmt(net);
+
+  if(net >= 0){
+    netEl.style.color = '#50D890';
+  } else {
+    netEl.style.color = '#FF7060';
+  }
+
+  document.getElementById('total-charges').textContent=fmt(charges);
+  if(tA!==undefined) document.getElementById('s-approx').textContent='₹'+fmt(tA);
+  document.getElementById('s-loan').textContent    ='₹'+fmt(loan);
+  document.getElementById('s-proc').textContent    ='₹'+fmt(proc);
+  document.getElementById('s-gvc').textContent     ='₹'+fmt(gvc);
+  document.getElementById('s-sgst').textContent    ='₹'+fmt(sgst);
+  document.getElementById('s-cgst').textContent    ='₹'+fmt(cgst);
+  document.getElementById('s-charges').textContent ='₹'+fmt(charges);
+  document.getElementById('s-principal').textContent='₹'+fmt(principal);
+  document.getElementById('s-rint').textContent    ='₹'+fmt(rInt);
+  document.getElementById('s-renewal').textContent ='₹'+fmt(renewal);
+  document.getElementById('s-total').textContent   =fmt(net);
+}
+
+// ── RENEWAL ──
+function calcRenewal(){
+  const d1v=document.getElementById('r-loan-date').value;
+  const d2v=document.getElementById('r-renew-date').value;
+  const principal=parseFloat(document.getElementById('r-principal').value)||0;
+  const rate=(parseFloat(document.getElementById('r-rate').value)||10)/100;
+
+  let days=0, interest=0;
+  if(d1v&&d2v){
+    const d1=new Date(d1v), d2=new Date(d2v);
+    days=Math.max(0,Math.round((d2-d1)/86400000));
+  }
+  if(principal>0&&days>0){
+    interest=r2(principal * rate * (days/365));
+  }
+  document.getElementById('r-days').value    =days||'';
+  document.getElementById('r-interest').value=interest?interest.toFixed(2):'';
+  document.getElementById('r-total').textContent=fmt(r2(principal+interest));
+  updateTotals();
+}
+
+// ── RESET ──
+function resetAll(){
+  if(!confirm('Reset everything?')) return;
+  document.getElementById('itemsBody').innerHTML='';
+  rowCount=0;
+  document.getElementById('loanAmount').value='';
+  document.getElementById('eff-loan').textContent='0.00';
+  document.getElementById('item-badge').textContent='0 items';
+  Object.keys(MO).forEach(k=>{ MO[k]=false; });
+  ['proc','gvc','sgst','cgst'].forEach(k=>{
+    document.getElementById('c-'+k).value='';
+    setChargeUI(k,false);
+    document.getElementById(k+'-basis').textContent='';
+  });
+  ['proc-min','gvc-min','gvc-max'].forEach(id=>document.getElementById(id).style.display='none');
+  ['r-loan-date','r-renew-date','r-principal'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('r-rate').value='10';
+  document.getElementById('r-days').value='';
+  document.getElementById('r-interest').value='';
+  document.getElementById('r-total').textContent='0.00';
+  ['s-approx','s-loan','s-proc','s-gvc','s-sgst','s-cgst','s-charges','s-principal','s-rint','s-renewal','s-total'].forEach(id=>document.getElementById(id).textContent='—');
+  ['totGross','totNet','totVal','totLoan','total-charges'].forEach(id=>document.getElementById(id).textContent='');
+  addRow();
+}
+
+// ── DAYS TAB ──
+function todayStr(){ return new Date().toISOString().split('T')[0]; }
+function setToday(){ document.getElementById('toDate').value=todayStr(); calcDays(); }
+function calcDays(){
+  const f=document.getElementById('fromDate').value;
+  const t=document.getElementById('toDate').value;
+  if(!f||!t) return;
+  const d1=new Date(f), d2=new Date(t), ms=d2-d1;
+  if(ms<0){ ['d-days','d-months','d-years','d-emonths','d-eyears','d-weeks','d-imonths'].forEach(id=>document.getElementById(id).textContent='—'); return; }
+  const days=Math.round(ms/86400000);
+  let yr=d2.getFullYear()-d1.getFullYear(), mo=d2.getMonth()-d1.getMonth();
+  if(mo<0){yr--;mo+=12;}
+  document.getElementById('d-days').textContent   =days;
+  document.getElementById('d-months').textContent =yr*12+mo;
+  document.getElementById('d-years').textContent  =yr;
+  document.getElementById('d-emonths').textContent=(days/30).toFixed(4);
+  document.getElementById('d-eyears').textContent =(days/365).toFixed(6);
+  document.getElementById('d-weeks').textContent  =(days/7).toFixed(1);
+  document.getElementById('d-imonths').textContent=Math.ceil(days/30)+' mo';
+}
+
+// ── INIT ──
+window.onload = () => {
+  document.getElementById('todayChip').textContent =
+    'Today: '+new Date().toLocaleDateString('en-IN',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  document.getElementById('toDate').value=todayStr();
+  addRow();
+  buildDenomTable();
+
+
+};
+</script>
+
+<!-- ══════════ DENOMINATION TAB ══════════ -->
+<div class="tab-content" id="tab-denom">
+<div class="container">
+
+  <!-- Main denomination card -->
+  <div class="card" style="border:2px solid var(--gold-rim);">
+    <div class="card-head" style="background:linear-gradient(135deg,#7A4F00,#B8860B);border-bottom:2px solid var(--gold-rim);padding:12px 16px;">
+      <div style="display:flex;align-items:center;gap:9px;">
+        <span style="font-size:18px">💵</span>
+        <div style="font-size:15px;font-weight:800;color:#fff;">Cash Denomination</div>
+      </div>
+      <span style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);color:#fff;font-size:11px;font-weight:700;border-radius:20px;padding:3px 10px;">Note Count</span>
+    </div>
+
+    <!-- Table -->
+    <div style="overflow-x:auto;">
+      <table style="width:100%;border-collapse:collapse;min-width:340px;">
+        <thead>
+          <tr style="background:#FDF6E0;">
+            <th style="padding:9px 8px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.4px;color:var(--gold);border-bottom:2px solid var(--gold-rim);width:68px;">Note</th>
+            <th style="padding:9px 6px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.4px;color:var(--ink-mute);border-bottom:2px solid var(--gold-rim);">Bundle</th>
+            <th style="padding:9px 6px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.4px;color:var(--ink-mute);border-bottom:2px solid var(--gold-rim);">Loose</th>
+            <th style="padding:9px 6px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.4px;color:var(--ink-mute);border-bottom:2px solid var(--gold-rim);text-align:center;">Total</th>
+            <th style="padding:9px 8px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.4px;color:var(--green);border-bottom:2px solid var(--gold-rim);text-align:right;">Amount ₹</th>
+          </tr>
+        </thead>
+        <tbody id="denomTbody"></tbody>
+        <tfoot>
+          <tr style="background:#FDF6E0;border-top:2px solid var(--gold-rim);">
+            <td style="padding:10px 8px;font-size:12px;font-weight:800;color:var(--gold);text-transform:uppercase;">TOTAL</td>
+            <td style="padding:10px 6px;font-family:var(--mono);font-size:13px;font-weight:700;color:var(--ink);" id="d-tot-bundle">—</td>
+            <td style="padding:10px 6px;font-family:var(--mono);font-size:13px;font-weight:700;color:var(--ink);" id="d-tot-frac">—</td>
+            <td style="padding:10px 6px;font-family:var(--mono);font-size:13px;font-weight:700;color:var(--ink);text-align:center;" id="d-tot-notes">—</td>
+            <td style="padding:10px 8px;font-family:var(--mono);font-size:14px;font-weight:800;color:var(--green);text-align:right;" id="d-tot-amt">—</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  </div>
+
+  <!-- Amount Given + Difference -->
+  <div class="card" style="border:2px solid var(--blue-rim);">
+    <div class="card-head" style="background:linear-gradient(135deg,#0B3060,#1A50A0);border-bottom:2px solid var(--blue-rim);padding:12px 16px;">
+      <div style="display:flex;align-items:center;gap:9px;">
+        <span style="font-size:18px">🏦</span>
+        <div style="font-size:15px;font-weight:800;color:#fff;">Verification</div>
+      </div>
+    </div>
+    <div style="padding:14px 16px;background:#F4F8FF;">
+      <div class="grid2" style="gap:12px;margin-bottom:12px;">
+        <div class="field">
+          <label style="color:var(--blue);font-size:11px;">Amount Given ₹</label>
+          <input type="number" id="d-given" placeholder="0" oninput="calcDenom()"
+            style="font-size:18px;font-weight:800;padding:11px 13px;border-color:var(--blue-rim);background:#fff;">
+        </div>
+        <div class="field">
+          <label style="color:var(--green);font-size:11px;">Counted Total ₹</label>
+          <input type="number" id="d-counted" readonly
+            style="font-size:18px;font-weight:800;padding:11px 13px;background:var(--green-bg);border-color:var(--green-rim);color:var(--green);">
+        </div>
+      </div>
+      <!-- Diff bar -->
+      <div id="diff-bar" style="display:none;border-radius:10px;padding:13px 16px;display:none;justify-content:space-between;align-items:center;">
+        <div>
+          <div id="diff-label" style="font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:0.4px;"></div>
+          <div id="diff-sub"   style="font-size:11px;margin-top:2px;opacity:0.75;"></div>
+        </div>
+        <div id="diff-amt" style="font-family:var(--mono);font-size:24px;font-weight:800;"></div>
+      </div>
+    </div>
+  </div>
+
+  <button class="big-reset" onclick="resetDenom()">↺ &nbsp;Reset Denomination</button>
+</div>
+</div>
+
+<style>
+/* denomination table inputs */
+.dn-inp {
+  font-family: var(--mono);
+  font-size: 15px;
+  font-weight: 600;
+  padding: 8px 6px;
+  border: 1.5px solid var(--border);
+  border-radius: 7px;
+  background: var(--surface2);
+  color: var(--ink);
+  outline: none;
+  width: 100%;
+  text-align: center;
+  -webkit-appearance: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.dn-inp:focus {
+  border-color: var(--gold);
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(192,138,32,0.10);
+}
+.dn-chip {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 54px; height: 30px; border-radius: 7px;
+  font-family: var(--mono); font-size: 13px; font-weight: 800;
+}
+.nc-500{background:linear-gradient(135deg,#FFC857,#E8A020);color:#4A2800;border:1.5px solid #D48010;}
+.nc-200{background:linear-gradient(135deg,#90D870,#50A830);color:#0A3800;border:1.5px solid #40901C;}
+.nc-100{background:linear-gradient(135deg,#78B8F0,#2878D0);color:#fff;border:1.5px solid #1060C0;}
+.nc-50 {background:linear-gradient(135deg,#F0A060,#C05020);color:#fff;border:1.5px solid #A04010;}
+.nc-20 {background:linear-gradient(135deg,#A0C870,#60A030);color:#fff;border:1.5px solid #489020;}
+.nc-10 {background:linear-gradient(135deg,#E090A8,#B04060);color:#fff;border:1.5px solid #902840;}
+.nc-1  {background:linear-gradient(135deg,#D0D0D0,#909090);color:#fff;border:1.5px solid #787878;}
+.dn-amt{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--green);text-align:right;padding-right:4px;}
+</style>
+
+<script>
+const NOTES = [
+  {val:500,cls:'nc-500'},{val:200,cls:'nc-200'},{val:100,cls:'nc-100'},
+  {val:50,cls:'nc-50'},{val:20,cls:'nc-20'},{val:10,cls:'nc-10'},{val:1,cls:'nc-1'}
+];
+
+function buildDenomTable(){
+  const tbody = document.getElementById('denomTbody');
+  tbody.innerHTML='';
+  NOTES.forEach((n,i)=>{
+    const tr=document.createElement('tr');
+    tr.style.background = i%2===0 ? '#fff' : '#FAFAF5';
+    tr.innerHTML=`
+      <td style="padding:7px 8px;">
+        <span class="dn-chip ${n.cls}">₹${n.val}</span>
+      </td>
+      <td style="padding:5px 4px 5px 6px;">
+        <input class="dn-inp" type="number" min="0" placeholder="0" id="dn-b-${n.val}" oninput="calcDenom()">
+      </td>
+      <td style="padding:5px 4px;">
+        <input class="dn-inp" type="number" min="0" placeholder="0" id="dn-f-${n.val}" oninput="calcDenom()">
+      </td>
+      <td style="padding:5px 4px;text-align:center;font-family:var(--mono);font-size:13px;font-weight:600;color:var(--ink-soft);" id="dn-t-${n.val}">0</td>
+      <td style="padding:5px 8px;" class="dn-amt" id="dn-a-${n.val}">₹0</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function calcDenom(){
+  let totB=0,totF=0,totN=0,grand=0;
+  NOTES.forEach(n=>{
+    const b=parseInt(document.getElementById(`dn-b-${n.val}`)?.value)||0;
+    const f=parseInt(document.getElementById(`dn-f-${n.val}`)?.value)||0;
+    const tot=b+f;
+    const amt=tot*n.val;
+    document.getElementById(`dn-t-${n.val}`).textContent=tot||'0';
+    document.getElementById(`dn-a-${n.val}`).textContent= amt ? '₹'+amt.toLocaleString('en-IN') : '₹0';
+    document.getElementById(`dn-a-${n.val}`).style.color = amt>0 ? 'var(--green)' : 'var(--ink-mute)';
+    totB+=b; totF+=f; totN+=tot; grand+=amt;
+  });
+  document.getElementById('d-tot-bundle').textContent = totB||'—';
+  document.getElementById('d-tot-frac').textContent   = totF||'—';
+  document.getElementById('d-tot-notes').textContent  = totN||'—';
+  document.getElementById('d-tot-amt').textContent    = grand ? '₹'+grand.toLocaleString('en-IN') : '—';
+  const cntdEl = document.getElementById('d-counted');
+  if(cntdEl) cntdEl.value = grand||'';
+
+  const given=parseFloat(document.getElementById('d-given').value)||0;
+  const bar  =document.getElementById('diff-bar');
+  const lbl  =document.getElementById('diff-label');
+  const sub  =document.getElementById('diff-sub');
+  const amt  =document.getElementById('diff-amt');
+
+  if(given>0){
+    bar.style.display='flex';
+    const diff=given-grand;
+    if(diff===0){
+      bar.style.background='linear-gradient(135deg,#E0F4EA,#F0FBF4)';
+      bar.style.border='1.5px solid var(--green-rim)';
+      lbl.style.color=amt.style.color='var(--green)';
+      lbl.textContent='✓ Exact Match!';
+      sub.textContent='Amount tallies perfectly';
+      amt.textContent='₹0';
+    } else if(diff>0){
+      bar.style.background='linear-gradient(135deg,#E8F4EE,#F0FBF4)';
+      bar.style.border='1.5px solid var(--green-rim)';
+      lbl.style.color=amt.style.color='var(--green)';
+      lbl.textContent='↑ Excess';
+      sub.textContent='Given more than counted';
+      amt.textContent='+₹'+diff.toLocaleString('en-IN');
+    } else {
+      bar.style.background='linear-gradient(135deg,#FDECEA,#FFF0EE)';
+      bar.style.border='1.5px solid var(--red-rim)';
+      lbl.style.color=amt.style.color='var(--red)';
+      lbl.textContent='↓ Short';
+      sub.textContent='Given less than counted';
+      amt.textContent='-₹'+Math.abs(diff).toLocaleString('en-IN');
+    }
+  } else {
+    bar.style.display='none';
+  }
+}
+
+function resetDenom(){
+  NOTES.forEach(n=>{
+    const b=document.getElementById(`dn-b-${n.val}`);
+    const f=document.getElementById(`dn-f-${n.val}`);
+    if(b)b.value=''; if(f)f.value='';
+    document.getElementById(`dn-t-${n.val}`).textContent='0';
+    document.getElementById(`dn-a-${n.val}`).textContent='₹0';
+  });
+  document.getElementById('d-given').value='';
+  const c=document.getElementById('d-counted'); if(c)c.value='';
+  ['d-tot-bundle','d-tot-frac','d-tot-notes','d-tot-amt'].forEach(id=>document.getElementById(id).textContent='—');
+  document.getElementById('diff-bar').style.display='none';
+}
+</script>
+</body>
+</html>
