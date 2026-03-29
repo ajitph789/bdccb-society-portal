@@ -431,13 +431,13 @@ body{font-family:var(--font);background:var(--bg);color:var(--ink);min-height:10
 <body>
 
 <!-- ------- LOGIN SCREEN ------- -->
-<div class="screen on" id="loginScreen">
+<div class="screen" id="loginScreen">
   <div class="login-card">
     <div class="login-top">
       <div class="login-ico">🏦</div>
       <div class="login-title">BDCCB Employee Society</div>
       <div class="login-sub">Bagalkot District Central Co-operative Bank Ltd.</div>
-      <div style="margin-top:10px;font-size:13px;color:rgba(255,255,255,.7);font-weight:500">ಬ್ಯಾಗಲಕೋಟ ಜಿಲ್ಲಾ ಕೇಂದ್ರ ಸಹಕಾರಿ ಬ್ಯಾಂಕ ನಿ.</div>
+      <div style="margin-top:10px;font-size:13px;color:rgba(255,255,255,.7);font-weight:500">ಬ್ಯಾಗಲಕೋಟ ಜಿಲ್ಲಾ ಮಧ್ಯವರ್ತಿ ಸಹಕಾರಿ ಬ್ಯಾಂಕ ನಿ.</div>
     </div>
     <div class="login-body">
       <div class="fld">
@@ -452,23 +452,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--ink);min-height:10
       <button class="login-btn" id="loginBtn" onclick="doLogin()">Login →</button>
       <div class="login-err" id="loginErr">❌ Invalid Employee Code. Please try again.</div>
 
-      <!-- Gold Loan Calculator -->
-      <div style="text-align:center;margin-top:20px;padding-top:18px;border-top:1px solid #e2e8f0;">
-        <div style="font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px;">Quick Tools</div>
-        <a href="gold_loan_calculator.html" target="_blank"
-           style="display:inline-flex;align-items:center;gap:10px;
-                  background:linear-gradient(135deg,#7A4F00,#B8860B);
-                  color:#fff;text-decoration:none;
-                  padding:13px 22px;border-radius:14px;
-                  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;
-                  font-size:14px;font-weight:800;
-                  box-shadow:0 4px 14px rgba(184,134,11,0.4);
-                  transition:transform .15s,box-shadow .15s;"
-           onmouseover="this.style.transform='translateY(-1px)';this.style.boxShadow='0 6px 18px rgba(184,134,11,0.5)'"
-           onmouseout="this.style.transform='';this.style.boxShadow='0 4px 14px rgba(184,134,11,0.4)'">
-          🪙 Gold Loan Calculator
-        </a>
-      </div>
+
     </div>
   </div>
 </div>
@@ -496,7 +480,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--ink);min-height:10
 <!-- ID CARD POPUP -->
 <div class="idcard-overlay" id="idCardOverlay" onclick="closeIDCard(event)">
   <div class="idcard-popup">
-    <button class="idcard-close" onclick="closeIDPopup()">?</button>
+    <button class="idcard-close" onclick="closeIDPopup()">✕</button>
     <div class="idcard-zoom-bar">
       <button class="zoom-btn" onclick="zoomCard(-1)">-</button>
       <span class="zoom-label" id="zoomLabel">100%</span>
@@ -603,7 +587,7 @@ async function doLogin() {
     const res = await apiCall('login', { empCode: code });
 
     if (res.blocked) {
-      btn.textContent = 'Login ?'; btn.disabled = false;
+      btn.textContent = 'Login →'; btn.disabled = false;
       showLoginErr('⚠️ Outdated version. Please open latest link.');
       return;
     }
@@ -612,14 +596,14 @@ async function doLogin() {
       // API failed — try demo data
       const emp = EMPLOYEES[code];
       if (!emp) {
-        btn.textContent = 'Login ?'; btn.disabled = false;
-        showLoginErr('? Invalid Employee Code. Please try again.');
+        btn.textContent = 'Login →'; btn.disabled = false;
+        showLoginErr('❌ Invalid Employee Code. Please try again.');
         return;
       }
       loggedEmp = {...emp};
     } else if (!res.ok || !res.employee) {
-      btn.textContent = 'Login ?'; btn.disabled = false;
-      showLoginErr('? Invalid Employee Code. Please try again.');
+      btn.textContent = 'Login →'; btn.disabled = false;
+      showLoginErr('❌ Invalid Employee Code. Please try again.');
       return;
     } else {
       // API success!
@@ -639,14 +623,14 @@ async function doLogin() {
     // Any error — try demo data
     const emp = EMPLOYEES[code];
     if (!emp) {
-      btn.textContent = 'Login ?'; btn.disabled = false;
-      showLoginErr('? Invalid Employee Code. Please try again.');
+      btn.textContent = 'Login →'; btn.disabled = false;
+      showLoginErr('❌ Invalid Employee Code. Please try again.');
       return;
     }
     loggedEmp = {...emp};
   }
 
-  btn.textContent = 'Login ?'; btn.disabled = false;
+  btn.textContent = 'Login →'; btn.disabled = false;
   document.getElementById('hdrName').textContent = loggedEmp.name.split(' ')[0];
   buildTabs();
   const ls = document.getElementById('loginScreen');
@@ -768,16 +752,16 @@ function pgLoan(el) {
         <div class="prog-wrap">
           <div class="prog-bar"><div class="prog-fill" style="--w:${pct}%"></div></div>
           <div class="prog-labels">
-            <span>?${fmt(paid)} repaid</span>
+            <span>₹${fmt(paid)} repaid</span>
             <span class="prog-pct">${pct}% done</span>
-            <span>?${fmt(e.origAmt)} total</span>
+            <span>₹${fmt(e.origAmt)} total</span>
           </div>
         </div>
       </div>
       <div class="hero-chips">
         <div class="hero-chip">
           <div class="hero-chip-label">Monthly EMI</div>
-          <div class="hero-chip-val">?${fmt(e.emi)}</div>
+          <div class="hero-chip-val">₹${fmt(e.emi)}</div>
           <div class="hero-chip-sub">Total deduction</div>
         </div>
         <div class="hero-chip">
@@ -787,12 +771,12 @@ function pgLoan(el) {
         </div>
         <div class="hero-chip">
           <div class="hero-chip-label">Interest Paid</div>
-          <div class="hero-chip-val">?${fmt(totalIntPaid)}</div>
+          <div class="hero-chip-val">₹${fmt(totalIntPaid)}</div>
           <div class="hero-chip-sub">Since ${fmtDate(e.loanStart)}</div>
         </div>
         <div class="hero-chip">
           <div class="hero-chip-label">Share / Month</div>
-          <div class="hero-chip-val">?${fmt(e.shareDed)}</div>
+          <div class="hero-chip-val">₹${fmt(e.shareDed)}</div>
           <div class="hero-chip-sub">Monthly deduction</div>
         </div>
       </div>
@@ -801,7 +785,7 @@ function pgLoan(el) {
     <div class="clearance-card">
       <div class="clearance-title">🗓️ Estimated Loan Clearance</div>
       <div class="clearance-date">${clearStr}</div>
-      <div class="clearance-sub">${monthsRemain} months remaining at ?${fmt(e.emi)}/month</div>
+      <div class="clearance-sub">${monthsRemain} months remaining at ₹${fmt(e.emi)}/month</div>
     </div>
 
     <div class="sec-title">📄 Loan Details</div>
@@ -809,11 +793,11 @@ function pgLoan(el) {
       <div class="info-list">
         <div class="info-row"><span class="info-key">🔢 Loan Number</span><span class="info-val mono">${e.loanNo}</span></div>
         <div class="info-row"><span class="info-key">🏷️ Loan Type</span><span class="info-val"><span class="badge blue">Employee Society Loan</span></span></div>
-        <div class="info-row"><span class="info-key">💵 Original Amount</span><span class="info-val mono">?${fmt(e.origAmt)}</span></div>
+        <div class="info-row"><span class="info-key">💵 Original Amount</span><span class="info-val mono">₹${fmt(e.origAmt)}</span></div>
         <div class="info-row"><span class="info-key">📊 Interest Rate</span><span class="info-val"><span class="badge gold">${e.rate}% p.a.</span></span></div>
         <div class="info-row"><span class="info-key">📅 Loan Start Date</span><span class="info-val">${fmtDate(e.loanStart)}</span></div>
-        <div class="info-row"><span class="info-key">📦 Total Share Capital</span><span class="info-val mono">?${fmt(e.shareAmt)}</span></div>
-        <div class="info-row"><span class="info-key">💳 Monthly Share Deduction</span><span class="info-val mono">?${fmt(e.shareDed)}</span></div>
+        <div class="info-row"><span class="info-key">📦 Total Share Capital</span><span class="info-val mono">₹${fmt(e.shareAmt)}</span></div>
+        <div class="info-row"><span class="info-key">💳 Monthly Share Deduction</span><span class="info-val mono">₹${fmt(e.shareDed)}</span></div>
       </div>
     </div>
   `;
@@ -884,9 +868,9 @@ function renderHistory(el) {
 
     <div class="hist-summary">
       <div class="hs-card"><div class="hs-label">Months</div><div class="hs-val">${filtered.length}</div></div>
-      <div class="hs-card"><div class="hs-label">Share</div><div class="hs-val" style="color:var(--blue)">?${fmt(tShare)}</div></div>
-      <div class="hs-card"><div class="hs-label">Principal</div><div class="hs-val green">?${fmt(tPrin)}</div></div>
-      <div class="hs-card"><div class="hs-label">Interest</div><div class="hs-val red">?${fmt(tInt)}</div></div>
+      <div class="hs-card"><div class="hs-label">Share</div><div class="hs-val" style="color:var(--blue)">₹${fmt(tShare)}</div></div>
+      <div class="hs-card"><div class="hs-label">Principal</div><div class="hs-val green">₹${fmt(tPrin)}</div></div>
+      <div class="hs-card"><div class="hs-label">Interest</div><div class="hs-val red">₹${fmt(tInt)}</div></div>
     </div>
 
     ${filtered.length === 0
@@ -897,29 +881,29 @@ function renderHistory(el) {
             <div class="hist-card-top">
               <div>
                 <div class="hist-month">${h.month}</div>
-                <div class="hist-prev">Prev balance: ?${fmt(h.prevBal)}</div>
+                <div class="hist-prev">Prev balance: ₹${fmt(h.prevBal)}</div>
               </div>
               <div class="hist-bal-wrap">
-                <div class="hist-bal">?${fmt(h.balance)}</div>
-                <div class="hist-change down">? ?${fmt(reduced)} reduced</div>
+                <div class="hist-bal">₹${fmt(h.balance)}</div>
+                <div class="hist-change down">↓ ₹${fmt(reduced)} reduced</div>
               </div>
             </div>
             <div class="hist-card-bot">
               <div class="hist-chip">
                 <div class="hist-chip-label">Total EMI</div>
-                <div class="hist-chip-val">?${fmt(h.totalEmi)}</div>
+                <div class="hist-chip-val">₹${fmt(h.totalEmi)}</div>
               </div>
               <div class="hist-chip">
                 <div class="hist-chip-label">Share</div>
-                <div class="hist-chip-val s">?${fmt(h.shareDed)}</div>
+                <div class="hist-chip-val s">₹${fmt(h.shareDed)}</div>
               </div>
               <div class="hist-chip">
                 <div class="hist-chip-label">Principal</div>
-                <div class="hist-chip-val p">?${fmt(h.principal)}</div>
+                <div class="hist-chip-val p">₹${fmt(h.principal)}</div>
               </div>
               <div class="hist-chip">
                 <div class="hist-chip-label">Interest</div>
-                <div class="hist-chip-val i">?${fmt(h.interest)}</div>
+                <div class="hist-chip-val i">₹${fmt(h.interest)}</div>
               </div>
             </div>
           </div>`;
@@ -938,12 +922,12 @@ function shareWA() {
   const filtered = getFiltered();
   let msg = `📊 *BDCCB Employee Society*\n*Loan Statement — ${e.name}*\nEmp Code: ${e.code} | Loan: ${e.loanNo}\n\n`;
   filtered.forEach(h => {
-    msg += `📅 *${h.month}*\n  Balance: ₹${fmt(h.balance)}\n  EMI: ₹${fmt(h.totalEmi)} | Share: ₹${fmt(h.shareDed)} | Principal: ?${fmt(h.principal)} | Interest: ?${fmt(h.interest)}\n\n`;
+    msg += `📅 *${h.month}*\n  Balance: ₹${fmt(h.balance)}\n  EMI: ₹${fmt(h.totalEmi)} | Share: ₹${fmt(h.shareDed)} | Principal: ₹${fmt(h.principal)} | Interest: ₹${fmt(h.interest)}\n\n`;
   });
   const ts=filtered.reduce((s,h)=>s+h.shareDed,0);
   const tp=filtered.reduce((s,h)=>s+h.principal,0);
   const ti=filtered.reduce((s,h)=>s+h.interest,0);
-  msg += `*Total Share: ₹${fmt(ts)} | Principal: ?${fmt(tp)} | Interest: ?${fmt(ti)}*\n\n_Generated from BDCCB Society Portal_`;
+  msg += `*Total Share: ₹${fmt(ts)} | Principal: ₹${fmt(tp)} | Interest: ₹${fmt(ti)}*\n\n_Generated from BDCCB Society Portal_`;
   window.open('https://wa.me/?text='+encodeURIComponent(msg));
 }
 
@@ -1024,15 +1008,15 @@ function renderProfile(el) {
     <!-- -- QUICK STATS -- -->
     <div class="prof-stats">
       <div class="pstat navy">
-        <div class="pstat-val">?${fmt(e.origAmt)}</div>
+        <div class="pstat-val">₹${fmt(e.origAmt)}</div>
         <div class="pstat-lbl">Loan Amount</div>
       </div>
       <div class="pstat gold">
-        <div class="pstat-val">?${fmt(e.emi)}</div>
+        <div class="pstat-val">₹${fmt(e.emi)}</div>
         <div class="pstat-lbl">Monthly EMI</div>
       </div>
       <div class="pstat teal">
-        <div class="pstat-val">?${fmt(e.shareAmt)}</div>
+        <div class="pstat-val">₹${fmt(e.shareAmt)}</div>
         <div class="pstat-lbl">Share Capital</div>
       </div>
     </div>
@@ -1056,12 +1040,12 @@ function renderProfile(el) {
         <span class="info-card-hdr-title">Loan Details</span>
       </div>
       <div class="info-row"><span class="info-key">Loan Type</span><span class="info-val"><span class="info-badge blue">Employee Society Loan</span></span></div>
-      <div class="info-row"><span class="info-key">Original Amount</span><span class="info-val">?${fmt(e.origAmt)}</span></div>
-      <div class="info-row"><span class="info-key">Monthly EMI</span><span class="info-val">?${fmt(e.emi)}</span></div>
+      <div class="info-row"><span class="info-key">Original Amount</span><span class="info-val">₹${fmt(e.origAmt)}</span></div>
+      <div class="info-row"><span class="info-key">Monthly EMI</span><span class="info-val">₹${fmt(e.emi)}</span></div>
       <div class="info-row"><span class="info-key">Interest Rate</span><span class="info-val"><span class="info-badge gold">${e.rate||'—'}% p.a.</span></span></div>
       <div class="info-row"><span class="info-key">Loan Start Date</span><span class="info-val">${fmtDate(e.loanStart)||'—'}</span></div>
-      <div class="info-row"><span class="info-key">Total Share Capital</span><span class="info-val">?${fmt(e.shareAmt)}</span></div>
-      <div class="info-row"><span class="info-key">Monthly Share Ded.</span><span class="info-val"><span class="info-badge teal">?${fmt(e.shareDed)}</span></span></div>
+      <div class="info-row"><span class="info-key">Total Share Capital</span><span class="info-val">₹${fmt(e.shareAmt)}</span></div>
+      <div class="info-row"><span class="info-key">Monthly Share Ded.</span><span class="info-val"><span class="info-badge teal">₹${fmt(e.shareDed)}</span></span></div>
     </div>
 
     <!-- -- EDITABLE FIELDS -- -->
@@ -1172,7 +1156,7 @@ function startEdit(key, cur, type='text') {
       placeholder="Enter ${key}..."
       onkeydown="if(event.key==='Enter')saveEdit('${key}');if(event.key==='Escape')cancelEdit('${key}','${cur}')">
     <div class="pf-save-row">
-      <button class="pf-save-btn" onclick="saveEdit('${key}')">? Save</button>
+      <button class="pf-save-btn" onclick="saveEdit('${key}')">✓ Save</button>
       <button class="pf-cancel-btn" onclick="cancelEdit('${key}','${cur}')">Cancel</button>
     </div>`;
   row.appendChild(inp);
@@ -1193,7 +1177,7 @@ async function saveEdit(key) {
   if (sheetField && API_URL) {
     apiCall('updateProfile', { empCode: loggedEmp.code, updates: { [sheetField]: val } });
   }
-  showToast('? '+key+' updated!','ok');
+  showToast('✅ '+key+' updated!','ok');
   renderProfile(document.getElementById('pageContent'));
 }
 
@@ -1437,7 +1421,7 @@ function downloadIDCard() {
   const a    = document.createElement('a');
   a.href = url; a.download = 'BDCCB_ID_'+e.code+'.html'; a.click();
   URL.revokeObjectURL(url);
-  showToast('? ID Card downloaded! Open & Print.','ok');
+  showToast('✅ ID Card downloaded! Open & Print.','ok');
 }
 
 // -------------------------------------------
@@ -1467,4 +1451,9 @@ let _tt;
 function showToast(msg, type='ok') {
   const t = document.getElementById('toast');
   t.textContent = msg; t.className = 'toast '+type+' on';
-  clearTimeout(_tt); _
+  clearTimeout(_tt);
+  _tt = setTimeout(() => t.className = 'toast', 2800);
+}
+</script>
+</body>
+</html>
