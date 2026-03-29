@@ -1178,6 +1178,14 @@ function startEdit(key, cur, type='text') {
   setTimeout(() => document.getElementById('ei-'+key)?.focus(), 50);
 }
 
+async function saveBranchDrop(val) {
+  loggedEmp.branch = val;
+  if (API_URL) {
+    apiCall('updateProfile', { empCode: loggedEmp.code, updates: { 'Branch': val } });
+  }
+  showToast('✅ Branch updated!', 'ok');
+}
+
 async function saveEdit(key) {
   const inp = document.getElementById('ei-'+key);
   if(!inp) return;
